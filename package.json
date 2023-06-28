@@ -1,0 +1,20 @@
+{
+  "name": "trackit-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnalyticLabs/Trackit-BE.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AnalyticLabs/Trackit-BE/issues"
+  },
+  "homepage": "https://github.com/AnalyticLabs/Trackit-BE#readme"
+}
