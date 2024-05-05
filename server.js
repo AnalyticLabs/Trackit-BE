@@ -13,7 +13,7 @@ app.use(express.json({ limit: "30mb" }));
 
 const APP_URL = process.env.APP_VERSION_URL
 const CONNECTION_URL = process.env.DB_URL;
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.T_PORT || 8000;
 
 server.listen(PORT, () => {
     console.log(`Server running on ${PORT}`);
