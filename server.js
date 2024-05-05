@@ -90,7 +90,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 
 //routers
-// app.use(`${APP_URL}/public`, require('./routes/publicRoutes'))
+app.use(`${APP_URL}/public/ping`, (req, res, next) => { return res.status(200).json({'message':'Pong'}) })
 
 
 //db connection
