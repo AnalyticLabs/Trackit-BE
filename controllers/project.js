@@ -253,7 +253,7 @@ exports.projectRecord = async (req, res) => {
       createdAt: 1,
     });
 
-    console.log(req.user._id)
+    // console.log(req.user._id)
     const count = await Project.find({companyId: req.user.company,}).countDocuments();
 
     if (!projects) {

@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { default: axios } = require("axios");
+const { logger, errorLogger } = require("../utils/winstonLogger");
 
 const verifyToken = async (req, res, next) => {
     let token;
@@ -32,6 +33,12 @@ const verifyToken = async (req, res, next) => {
 
         // Making call to monnit service for authentication of token
         try {
+
+            logger.info({
+                Route: "Authenticate middleware info logging",
+                Token: token
+            });
+
             // console.log(token)
             MONNIT_URL = process.env.MONNIT_URL
 
@@ -56,10 +63,10 @@ const verifyToken = async (req, res, next) => {
 
          // Error logging
         errorLogger.error({
-            Route: req.url,
+            Route: "Authenticate middleware",
             Error: err.message,
         });
-        
+
         return res.status(404).json({ error: "Not authorized " });
     }
 };
