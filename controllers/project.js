@@ -14,7 +14,7 @@ exports.addProject = async (req, res) => {
       // error logging
       errorLogger.error({
         Route: req.url,
-        UserId: req.trackItUserId,
+        UserId: req.user._id,
         Error: `Project with  name:${name}  already exists`,
       });
 
@@ -56,7 +56,7 @@ exports.addProject = async (req, res) => {
       errorLogger.error({
         Route:req.url,
         RequestBody: { data },
-        UserId: req.trackItUserId,
+        UserId: req.user._id,
         Error: `Wrong stakeholders data`,
       });
 
@@ -68,7 +68,7 @@ exports.addProject = async (req, res) => {
     // Info Logging
     logger.info({
       Route: req.url,
-      UserId: req.trackItUserId,
+      UserId: req.user._id,
       RequestBody: { name, ownership, key, manager, lead },
     });
 
@@ -90,7 +90,7 @@ exports.addProject = async (req, res) => {
     // error logging
     errorLogger.error({
       Route: req.url,
-      UserId: req.trackItUserId,
+      UserId: req.user._id,
       RequestBody: { name, ownership, key, manager, lead },
       Error: error.message,
     });
@@ -111,7 +111,7 @@ exports.editProjectInfo = async (req, res) => {
       // Error logging
       errorLogger.error({
         Route: req.url,
-        UserId: req.trackItUserId,
+        UserId: req.user._id,
         Error: `Project with ID:${projectId} not found!`,
       });
 
@@ -154,7 +154,7 @@ exports.editProjectInfo = async (req, res) => {
       errorLogger.error({
         Route: req.url,
         RequestBody: { data },
-        UserId: req.trackItUserId,
+        UserId: req.user._id,
         Error: `Wrong stakeholders data`,
       });
 
@@ -166,7 +166,7 @@ exports.editProjectInfo = async (req, res) => {
     // Info Logging
     logger.info({
       Route: req.url,
-      UserId: req.trackItUserId,
+      UserId: req.user._id,
       RequestBody: { name, ownership, key, manager, lead },
     });
 
@@ -179,7 +179,7 @@ exports.editProjectInfo = async (req, res) => {
 
     return res.status(200).json({
       sucess: true,
-      message: "proejct updated successfully",
+      message: "project updated successfully",
       project,
     });
   } catch (error) {
@@ -188,7 +188,7 @@ exports.editProjectInfo = async (req, res) => {
     // error logging
     errorLogger.error({
       Route: req.url,
-      UserId: req.trackItUserId,
+      UserId: req.user._id,
       RequestBody: { name, ownership, key, manager, lead },
       Error: error.message,
     });
@@ -208,7 +208,7 @@ exports.deleteProject = async (req, res) => {
       // Error logging
       errorLogger.error({
         Route: req.url,
-        UserId: req.trackItUserId,
+        UserId: req.user._id,
         Error: `Project with ID:${id} not found!`,
       });
 
@@ -220,7 +220,7 @@ exports.deleteProject = async (req, res) => {
     // Info Logging
     logger.info({
       Route: req.url,
-      UserId: req.trackItUserId,
+      UserId: req.user._id,
       RequestQuery: id,
     });
 
@@ -235,7 +235,7 @@ exports.deleteProject = async (req, res) => {
     // Error logging
     errorLogger.error({
       Route: req.url,
-      UserId: req.trackItUserId,
+      UserId: req.user._id,
       RequestQuery: id,
       Error: error.message,
     });
@@ -253,15 +253,14 @@ exports.projectRecord = async (req, res) => {
       createdAt: 1,
     });
 
-    const count = await Project.find({
-      companyId: req.user.company,
-    }).countDocuments();
+    console.log(req.user._id)
+    const count = await Project.find({companyId: req.user.company,}).countDocuments();
 
     if (!projects) {
       // Error logging
       errorLogger.error({
         Route: req.url,
-        UserId: req.trackItUserId,
+        UserId: req.user._id,
         Error: "No Projects Found",
       });
 
@@ -271,7 +270,7 @@ exports.projectRecord = async (req, res) => {
     // Info Logging
     logger.info({
       Route: req.url,
-      UserId: req.trackItUserId,
+      UserId: req.user._id,
     });
 
     return res.status(200).json({ TotalCount: count, projects });
@@ -279,7 +278,7 @@ exports.projectRecord = async (req, res) => {
     // Error logging
     errorLogger.error({
       Route: req.url,
-      UserId: req.trackItUserId,
+      UserId: req.user._id,
       Error: error.message,
     });
 
