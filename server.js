@@ -16,8 +16,10 @@ const server = require("http").createServer(app);
 app.use(express.json({ limit: "30mb" }));
 
 const APP_URL = process.env.APP_VERSION_URL
+
 const TRACKIT_DB_URL = process.env.TRACKIT_DB_URL;
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.T_PORT || 8000;
+
 
 createFolder()
 server.listen(PORT, () => {
@@ -95,9 +97,10 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 
 //routers
+
 app.use(`${APP_URL}/api/public`, require('./routes/publicRoute'));
 app.use(`${APP_URL}/api/authenticated`, require('./routes/authRoute'));
-
+app.use(`${APP_URL}/public/ping`, (req, res, next) => { return res.status(200).json({'message':'Pong'}) })
 
 
 // db connection
