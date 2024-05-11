@@ -32,7 +32,7 @@ exports.addProject = async (req, res) => {
     let projectLead;
     let projectManager;
 
-    const MONNIT_URL = process.env.MONNITURL
+    const MONNIT_URL = process.env.MONNIT_URL
     try {
       const response = await axios.post(
         `${MONNIT_URL}/api/verify-stakeholders`,
@@ -128,7 +128,7 @@ exports.editProjectInfo = async (req, res) => {
     let projectLead;
     let projectManager;
 
-    const MONNIT_URL = process.env.MONNITURL
+    const MONNIT_URL = process.env.MONNIT_URL
 
     try {
       const response = await axios.post(
