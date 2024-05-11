@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const { createFolder } = require("./utils/winstonLogger");
+
+// const { connectDBs } = require("./DBconnection");
 
 const app = express();
 
@@ -12,9 +15,11 @@ const server = require("http").createServer(app);
 app.use(express.json({ limit: "30mb" }));
 
 const APP_URL = process.env.APP_VERSION_URL
-const CONNECTION_URL = process.env.DB_URL;
+const TRACKIT_DB_URL = process.env.TRACKIT_DB_URL;
+const MONNIT_DB_URL = process.env.MONNIT_DB_URL
 const PORT = process.env.PORT || 8000;
 
+createFolder()
 server.listen(PORT, () => {
     console.log(`Server running on ${PORT}`);
 });
@@ -90,17 +95,20 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 
 //routers
-// app.use(`${APP_URL}/public`, require('./routes/publicRoutes'))
+app.use(`${APP_URL}/api/public`, require('./routes/publicRoute'));
+app.use(`${APP_URL}/api/authenticated`, require('./routes/authRoute'));
 
 
-//db connection
-mongoose
-    .connect(CONNECTION_URL, {
+
+// db connection
+  mongoose
+    .connect(TRACKIT_DB_URL, {
         useNewUrlParser: true, useUnifiedTopology: true
     })
     .then(() => {
-        console.log("DB connection successful");
+        console.log("DB connection successful to TrackitDB");
     })
     .catch((err) => {
         console.log(err);
     });
+
