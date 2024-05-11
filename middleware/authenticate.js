@@ -19,18 +19,7 @@ const verifyToken = async (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.ACCESS_SECRET);
-        // const user = await User.findById(decoded.trackItUserId);
-        // console.log(decoded)
-        // console.log(user)
-
-         // check that the access token hasn't expired
-         const tokenAge = Date.now() - decoded.createdAt;
-         if (tokenAge > process.env.ACCESS_EXPIRE * 1000) {
-             return res.status(420).json({ error: "Unable to authorize. Please login" });
-         }
-
-
+       
         // Making call to monnit service for authentication of token
         try {
 
