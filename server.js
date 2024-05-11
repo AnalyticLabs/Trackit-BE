@@ -1,4 +1,5 @@
-require("dotenv").config({ path: "./.env" });
+// require("dotenv").config({ path: "./.env" });
+require("dotenv").config({ path: `./.env.${process.env.NODE_ENV}` });
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -16,7 +17,6 @@ app.use(express.json({ limit: "30mb" }));
 
 const APP_URL = process.env.APP_VERSION_URL
 const TRACKIT_DB_URL = process.env.TRACKIT_DB_URL;
-const MONNIT_DB_URL = process.env.MONNIT_DB_URL
 const PORT = process.env.PORT || 8000;
 
 createFolder()
