@@ -53,6 +53,13 @@ const verifyToken = async (req, res, next) => {
         next();
     } catch (err) {
         // console.log(err)
+
+         // Error logging
+        errorLogger.error({
+            Route: req.url,
+            Error: err.message,
+        });
+        
         return res.status(404).json({ error: "Not authorized " });
     }
 };
