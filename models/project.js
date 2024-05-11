@@ -1,31 +1,42 @@
 const mongoose = require("mongoose");
+// const { connectDBs } = require("../DBconnection");
+
+// const {trackitDB} = connectDBs();
+
 
 const projectSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, "Please provide the project Name"],
+        required: [false, "Please provide the project Name"],
     },
     ownership: {
-        type: String,
-        required: [true, "Please provide the ownership Name"],
+        type: Object,
+        required: [false, "Please provide the ownership Name"],
     },
     key: {
         type: String,
-        unquie: true,
-        required: [true, "Please provide the key"],
+        unique: true,
+        required: [false, "Please provide the key"],
     },
     manager: {
-        type: String,
-        required: [true, "Please provide the manager Name"],
+        type: Object,
+        required: [false, "Please provide the manager Name"],
     },
     lead: {
-        type: String,
-        required: [true, "Please provide the lead Name"],
+        type: Object,
+        required: [false, "Please provide the lead Name"],
+    },
+
+    companyId :{
+        type:String,
+        required: [true, "Please provide the companyId"],
     }
+
 
 },
     {
         timestamps: true
     });
 
-module.exports = mongoose.model('Project', projectSchema);
+module.exports = mongoose.model('Project', projectSchema)
+// module.exports = projectSchema
