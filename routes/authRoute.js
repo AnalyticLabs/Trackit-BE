@@ -1,9 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const verifyAuth = require("../middleware/authenticate");
 
-const { addProject } = require("../controllers/project");
+const {
+  addProject,
+  projectRecord,
+  deleteProject,
+  editProjectInfo,
 
+} = require("../controllers/project");
+const verifyToken = require("../middleware/authenticate");
 
 /**
  * @swagger
@@ -21,7 +26,9 @@ const { addProject } = require("../controllers/project");
  *       401:
  *         description: Unauthorized access
  */
-router.route("/add-project").post(addProject);
-
+router.route("/add-project").post(verifyToken, addProject);
+router.route("/get-all-projects").get(verifyToken, projectRecord);
+router.route("/delete-project").get(verifyToken, deleteProject);
+router.route("/edit-project").post(verifyToken, editProjectInfo);
 
 module.exports = router;
