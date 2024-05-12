@@ -1,14 +1,12 @@
 const express = require("express");
 const router = express.Router();
 
-const {
-  addProject,
-  projectRecord,
-  deleteProject,
-  editProjectInfo,
-
-} = require("../controllers/project");
+const {projectRecord} = require("../controllers/project");
 const verifyToken = require("../middleware/authenticate");
+const { getBoard } = require("../controllers/board");
+const { getIssueTypes } = require("../controllers/issueType");
+const { getPriorityTypes } = require("../controllers/priorityType");
+const { getStatus } = require("../controllers/status");
 
 /**
  * @swagger
@@ -26,9 +24,11 @@ const verifyToken = require("../middleware/authenticate");
  *       401:
  *         description: Unauthorized access
  */
-router.route("/add-project").post(verifyToken, addProject);
+
 router.route("/get-all-projects").get(verifyToken, projectRecord);
-router.route("/delete-project").get(verifyToken, deleteProject);
-router.route("/edit-project").post(verifyToken, editProjectInfo);
+router.route("/get-boards").get(verifyToken, getBoard);
+router.route("/get-issues").get(verifyToken, getIssueTypes);
+router.route("/get-priorities").get(verifyToken, getPriorityTypes);
+router.route("/get-status").get(verifyToken, getStatus);
 
 module.exports = router;

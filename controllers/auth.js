@@ -1,6 +1,6 @@
 const { default: axios } = require("axios")
 const jwt = require("jsonwebtoken");
-const User = require("../models/user")
+const User = require("../models/userModel")
 
 exports.login =async(req,res)=>{
     const {token} = req.body

@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
 const { default: axios } = require("axios");
+const { logger, errorLogger } = require("../utils/winstonLogger");
 
 const verifyToken = async (req, res, next) => {
     let token;
@@ -23,7 +23,7 @@ const verifyToken = async (req, res, next) => {
         // console.log(decoded)
         // console.log(user)
 
-         // check that the access token hasn't expired
+        //  check that the access token hasn't expired
          const tokenAge = Date.now() - decoded.createdAt;
          if (tokenAge > process.env.ACCESS_EXPIRE * 1000) {
              return res.status(420).json({ error: "Unable to authorize. Please login" });
@@ -32,6 +32,12 @@ const verifyToken = async (req, res, next) => {
 
         // Making call to monnit service for authentication of token
         try {
+
+            logger.info({
+                Route: "Authenticate middleware info logging",
+                Token: token
+            });
+
             // console.log(token)
             MONNIT_URL = process.env.MONNIT_URL
 
@@ -53,6 +59,13 @@ const verifyToken = async (req, res, next) => {
         next();
     } catch (err) {
         // console.log(err)
+
+         // Error logging
+        errorLogger.error({
+            Route: "Authenticate middleware",
+            Error: err.message,
+        });
+
         return res.status(404).json({ error: "Not authorized " });
     }
 };

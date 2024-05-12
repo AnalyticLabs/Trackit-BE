@@ -100,6 +100,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 app.use(`${APP_URL}/api/public`, require('./routes/publicRoute'));
 app.use(`${APP_URL}/api/authenticated`, require('./routes/authRoute'));
+app.use(`${APP_URL}/api/authenticated/admin`, require('./routes/adminRoute'));
 app.use(`${APP_URL}/public/ping`, (req, res, next) => { return res.status(200).json({'message':'Pong'}) })
 
 
