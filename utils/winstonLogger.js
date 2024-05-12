@@ -4,7 +4,7 @@ const path = require("path");
 const os = require("os");
 
 const homedir = os.homedir();
-const logFolderName = "TrackIt logs";
+const logFolderName = "TrackIt-logs";
 const logFolderPath = path.join(homedir, logFolderName);
 
 // Creating folder for logging
