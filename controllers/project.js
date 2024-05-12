@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Project = require("../models/project");
+const Project = require("../models/projectModel");
 const { default: axios } = require("axios");
 const { errorLogger, logger } = require("../utils/winstonLogger");
 const jwt = require("jsonwebtoken");
@@ -253,7 +253,7 @@ exports.projectRecord = async (req, res) => {
       createdAt: 1,
     });
 
-    // console.log(req.user._id)
+    // console.log(req.user)
     const count = await Project.find({companyId: req.user.company,}).countDocuments();
 
     if (!projects) {
