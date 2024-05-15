@@ -72,3 +72,14 @@ exports.getStatus = async (req,res) =>{
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
+
+exports.deleteStatus = async(req,res) =>{
+    try {
+        const {statusId} = req.body;
+        const status = await Status.findByIdAndDelete({_id:statusId});
+
+        return res.status(200).json({success:true,message:"Status delete successfully"})
+    } catch (error) {
+        return res.status(500).json({success:false,message:"Internal Server Error"})
+    }
+}

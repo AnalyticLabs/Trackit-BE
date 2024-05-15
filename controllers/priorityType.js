@@ -35,7 +35,7 @@ exports.addPriorityType = async(req,res) =>{
 
         return res.status(200).json({
             success:true,
-            message:"Issue Types added successfully"
+            message:"Priority Types added successfully"
         })
         
 
@@ -59,6 +59,17 @@ exports.getPriorityTypes = async (req,res) =>{
             TotalCount: count,
             priorities
         })
+    } catch (error) {
+        return res.status(500).json({success:false,message:"Internal Server Error"})
+    }
+}
+
+exports.deletePriority = async(req,res) =>{
+    try {
+        const {priorityId} = req.body;
+        const priority = await Priority.findByIdAndDelete({_id:priorityId});
+
+        return res.status(200).json({success:true,message:"Priority deleted successfully"})
     } catch (error) {
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
