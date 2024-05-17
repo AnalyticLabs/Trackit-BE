@@ -13,6 +13,7 @@ exports.addBoard = async(req,res) =>{
         }
 
         let boards = req.body
+        const newBoards = []
 
         for(const element of boards) {
             const {name , color} = element
@@ -26,22 +27,25 @@ exports.addBoard = async(req,res) =>{
                 }
 
                 boardObj.name = name
-                boardObj.color = `#${color}`
+                boardObj.color = `${color}`
                 await boardObj.save()
             }
 
             else {
                 const boardObj = await Board.create({
                     name,
-                    color: `#${color}`,
+                    color: `${color}`,
                     projectId:projectId,
                 })
+
+                newBoards.push(boardObj)
             }
         }
 
         return res.status(200).json({
             success:true,
-            message:"Boards added successfully"
+            message:"Boards added successfully",
+            newBoards
         })
         
 
