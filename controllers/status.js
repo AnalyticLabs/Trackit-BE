@@ -13,7 +13,8 @@ exports.addStatus = async(req,res) =>{
         }
 
         let status = req.body
-        // let boardIds = []
+        const newStatus = []
+
         for(const element of status) {
             const {name ,before,after} = element
             if(element.statusId) {
@@ -39,12 +40,15 @@ exports.addStatus = async(req,res) =>{
                     after,
                     projectId
                 })
+                
+                newStatus.push(statusObj)
             }
         }
 
         return res.status(200).json({
             success:true,
-            message:"Status added successfully"
+            message:"Status added successfully",
+            newStatus
         })
         
 

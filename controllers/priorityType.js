@@ -12,6 +12,7 @@ exports.addPriorityType = async(req,res) =>{
         }
 
         let priorities = req.body
+        const newPriorities = []
 
         for(const element of priorities) {
             const {name } = element
@@ -30,12 +31,14 @@ exports.addPriorityType = async(req,res) =>{
 
             else {
                 const priorityObj = await Priority.create({name,projectId})
+                newPriorities.push(priorityObj)
             }
         }
 
         return res.status(200).json({
             success:true,
-            message:"Priority Types added successfully"
+            message:"Priority Types added successfully",
+            newPriorities
         })
         
 

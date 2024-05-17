@@ -12,6 +12,7 @@ exports.addIssue = async(req,res) =>{
         }
 
         let issues = req.body
+        const newIssues = []
 
         for(const element of issues) {
             const {name } = element
@@ -30,12 +31,14 @@ exports.addIssue = async(req,res) =>{
 
             else {
                 const issueObj = await IssueType.create({name,projectId})
+                newIssues.push(issueObj);
             }
         }
 
         return res.status(200).json({
             success:true,
-            message:"Issue Types added successfully"
+            message:"Issue Types added successfully",
+            newIssues
         })
         
 
