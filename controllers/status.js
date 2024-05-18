@@ -17,6 +17,13 @@ exports.addStatus = async(req,res) =>{
 
         for(const element of status) {
             const {name ,before,after} = element
+            const nameExist = await Status.findOne({name})
+            if(nameExist) {
+                return res.status(409).json({
+                    success:false,
+                    message:"Status with this name already exists"
+                })
+            }
 
             if (!Array.isArray(after) || after.length === 0) {
                 return res.status(400).json({ success: false, message: "after field cannot be empty" });

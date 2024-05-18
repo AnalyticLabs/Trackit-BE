@@ -16,6 +16,13 @@ exports.addPriorityType = async(req,res) =>{
 
         for(const element of priorities) {
             const {name } = element
+            const nameExist = await Priority.findOne({name})
+            if(nameExist) {
+                return res.status(409).json({
+                    success:false,
+                    message:"Priority with this name already exists"
+                })
+            }
             if(element.priorityId) {
                 const priorityObj = await Priority.findById({_id:element.priorityId})
                 if(!priorityObj) {

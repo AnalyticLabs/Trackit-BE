@@ -17,6 +17,14 @@ exports.addBoard = async(req,res) =>{
 
         for(const element of boards) {
             const {name , color} = element
+            const nameExist = await Board.findOne({name})
+            if(nameExist) {
+                return res.status(409).json({
+                    success:false,
+                    message:"Board with this name already exists"
+                })
+            }
+            
             if(element.boardId) {
                 const boardObj = await Board.findById({_id:element.boardId})
                 if(!boardObj) {

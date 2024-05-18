@@ -16,6 +16,13 @@ exports.addIssue = async(req,res) =>{
 
         for(const element of issues) {
             const {name } = element
+            const nameExist = await IssueType.findOne({name})
+            if(nameExist) {
+                return res.status(409).json({
+                    success:false,
+                    message:"IssueType with this name already exists"
+                })
+            }
             if(element.issueId) {
                 const issueObj = await IssueType.findById({_id:element.issueId})
                 if(!issueObj) {
