@@ -3,17 +3,18 @@ const mongoose = require("mongoose");
 const statusSchema = new mongoose.Schema({
     name:{
         type: String,
-        required: [true, "Please Provide board name"]
+        required: [true, "Please Provide board name"],
+        unique: true
     },
 
     before:{
-        type: String,
+        type: [String],
         required: [false, "Please Provide color"]
     },
 
     after:{
-        type: String,
-        required: [false, "Please Provide color"]
+        type: [String],
+        required: [true, "Please Provide color"]
     },
 
     projectId:{

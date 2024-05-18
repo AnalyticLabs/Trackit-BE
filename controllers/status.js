@@ -13,9 +13,22 @@ exports.addStatus = async(req,res) =>{
         }
 
         let status = req.body
-        // let boardIds = []
+        const newStatus = []
+
         for(const element of status) {
             const {name ,before,after} = element
+            const nameExist = await Status.findOne({name})
+            if(nameExist) {
+                return res.status(409).json({
+                    success:false,
+                    message:"Status with this name already exists"
+                })
+            }
+
+            if (!Array.isArray(after) || after.length === 0) {
+                return res.status(400).json({ success: false, message: "after field cannot be empty" });
+            }
+
             if(element.statusId) {
                 const statusObj = await Status.findById({_id:element.statusId})
                 if(!statusObj) {
@@ -39,12 +52,21 @@ exports.addStatus = async(req,res) =>{
                     after,
                     projectId
                 })
+                
+
+                newStatus.push({
+                    id:statusObj._id,
+                    name:statusObj.name,
+                    before:statusObj.before,
+                    after:statusObj.after
+                })
             }
         }
 
         return res.status(200).json({
             success:true,
-            message:"Status added successfully"
+            message:"Status added successfully",
+            newStatus
         })
         
 
@@ -68,6 +90,17 @@ exports.getStatus = async (req,res) =>{
             TotalCount: count,
             status
         })
+    } catch (error) {
+        return res.status(500).json({success:false,message:"Internal Server Error"})
+    }
+}
+
+exports.deleteStatus = async(req,res) =>{
+    try {
+        const {statusId} = req.body;
+        const status = await Status.findByIdAndDelete({_id:statusId});
+
+        return res.status(200).json({success:true,message:"Status delete successfully"})
     } catch (error) {
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }

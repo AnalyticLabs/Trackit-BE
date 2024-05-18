@@ -26,12 +26,13 @@ const sprintSchema = new mongoose.Schema({
     isComplete:{
         type:Boolean,
         default: false
-    }
-    // tasks:{[
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Task',
-    //     required: [false, "Please provide the Task ID"]
-    // }]
+    },
+    
+    tasks:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Task',
+        required: [false, "Please provide the Task ID"]
+    }]
 },
 {
     timestamps:true,

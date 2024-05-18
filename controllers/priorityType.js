@@ -12,9 +12,17 @@ exports.addPriorityType = async(req,res) =>{
         }
 
         let priorities = req.body
+        const newPriorities = []
 
         for(const element of priorities) {
             const {name } = element
+            const nameExist = await Priority.findOne({name})
+            if(nameExist) {
+                return res.status(409).json({
+                    success:false,
+                    message:"Priority with this name already exists"
+                })
+            }
             if(element.priorityId) {
                 const priorityObj = await Priority.findById({_id:element.priorityId})
                 if(!priorityObj) {
@@ -30,12 +38,17 @@ exports.addPriorityType = async(req,res) =>{
 
             else {
                 const priorityObj = await Priority.create({name,projectId})
+                newPriorities.push({
+                    id:priorityObj._id,
+                    name: priorityObj.name
+                })
             }
         }
 
         return res.status(200).json({
             success:true,
-            message:"Issue Types added successfully"
+            message:"Priority Types added successfully",
+            newPriorities
         })
         
 
@@ -59,6 +72,17 @@ exports.getPriorityTypes = async (req,res) =>{
             TotalCount: count,
             priorities
         })
+    } catch (error) {
+        return res.status(500).json({success:false,message:"Internal Server Error"})
+    }
+}
+
+exports.deletePriority = async(req,res) =>{
+    try {
+        const {priorityId} = req.body;
+        const priority = await Priority.findByIdAndDelete({_id:priorityId});
+
+        return res.status(200).json({success:true,message:"Priority deleted successfully"})
     } catch (error) {
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }

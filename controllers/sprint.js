@@ -128,9 +128,15 @@ exports.getSprint = async(req,res) =>{
         const {projectId} = req.query
 
         const sprint = await Sprint.find({projectId})
-            .populate('projectId','name')
-            .select('name startDate endDate isComplete projectId')
-        
+            .populate({
+                path:"tasks", select:" status  title description assignee storyId",
+                populate:{
+                    path:"storyId", select:"title description epicId assignee",
+                    populate:{
+                        path:"epicId", select:"title description assignee"
+                    }
+                }
+            }).select('name startDate endDate isComplete tasks')
         const count = await Sprint.find({projectId}).countDocuments() 
 
             if(!sprint ) {

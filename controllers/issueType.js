@@ -12,9 +12,17 @@ exports.addIssue = async(req,res) =>{
         }
 
         let issues = req.body
+        const newIssues = []
 
         for(const element of issues) {
             const {name } = element
+            const nameExist = await IssueType.findOne({name})
+            if(nameExist) {
+                return res.status(409).json({
+                    success:false,
+                    message:"IssueType with this name already exists"
+                })
+            }
             if(element.issueId) {
                 const issueObj = await IssueType.findById({_id:element.issueId})
                 if(!issueObj) {
@@ -30,12 +38,17 @@ exports.addIssue = async(req,res) =>{
 
             else {
                 const issueObj = await IssueType.create({name,projectId})
+                newIssues.push({
+                    id:issueObj._id,
+                    name: issueObj.name
+                });
             }
         }
 
         return res.status(200).json({
             success:true,
-            message:"Issue Types added successfully"
+            message:"Issue Types added successfully",
+            newIssues
         })
         
 
@@ -57,9 +70,22 @@ exports.getIssueTypes = async (req,res) =>{
         return res.status(200).json({
             success:true,
             TotalCount: count,
-            issueTypes
+            issue:issueTypes
         })
     } catch (error) {
+        return res.status(500).json({success:false,message:"Internal Server Error"})
+    }
+}
+
+exports.deleteIssue = async(req,res) =>{
+    try {
+        const {issueId} = req.body
+
+        const issue = await IssueType.findByIdAndDelete({_id: issueId})
+
+        return res.status(200).json({success:true,message:"IssueType deleted successfully"})
+    } catch (error) {
+        // console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
