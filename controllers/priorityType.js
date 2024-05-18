@@ -31,7 +31,10 @@ exports.addPriorityType = async(req,res) =>{
 
             else {
                 const priorityObj = await Priority.create({name,projectId})
-                newPriorities.push(priorityObj)
+                newPriorities.push({
+                    id:priorityObj._id,
+                    name: priorityObj.name
+                })
             }
         }
 

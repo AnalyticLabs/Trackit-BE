@@ -17,6 +17,11 @@ exports.addStatus = async(req,res) =>{
 
         for(const element of status) {
             const {name ,before,after} = element
+
+            if (!Array.isArray(after) || after.length === 0) {
+                return res.status(400).json({ success: false, message: "after field cannot be empty" });
+            }
+
             if(element.statusId) {
                 const statusObj = await Status.findById({_id:element.statusId})
                 if(!statusObj) {
@@ -41,7 +46,13 @@ exports.addStatus = async(req,res) =>{
                     projectId
                 })
                 
-                newStatus.push(statusObj)
+
+                newStatus.push({
+                    id:statusObj._id,
+                    name:statusObj.name,
+                    before:statusObj.before,
+                    after:statusObj.after
+                })
             }
         }
 

@@ -38,7 +38,11 @@ exports.addBoard = async(req,res) =>{
                     projectId:projectId,
                 })
 
-                newBoards.push(boardObj)
+                newBoards.push({
+                    id:boardObj._id,
+                    name:boardObj.name,
+                    color:boardObj.color
+                })
             }
         }
 

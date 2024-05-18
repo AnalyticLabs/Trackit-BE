@@ -31,7 +31,10 @@ exports.addIssue = async(req,res) =>{
 
             else {
                 const issueObj = await IssueType.create({name,projectId})
-                newIssues.push(issueObj);
+                newIssues.push({
+                    id:issueObj._id,
+                    name: issueObj.name
+                });
             }
         }
 
