@@ -1,5 +1,9 @@
 const mongoose = require("mongoose");
 const Project = require("../models/projectModel");
+const Board = require('../models/boardModel')
+const Status = require("../models/statusModel")
+const Priority = require("../models/priorityTypeModel")
+const IssueType = require('../models/issueTypeModel')
 const { default: axios } = require("axios");
 const { errorLogger, logger } = require("../utils/winstonLogger");
 const jwt = require("jsonwebtoken");
@@ -44,14 +48,19 @@ exports.addProject = async (req, res) => {
         }
       );
 
-      //  console.log(response.data)
-
+      //  console.log(response.)
+     
       projectOwner = response.data.projectOwner;
       projectLead = response.data.projectLead;
       projectManager = response.data.projectManager;
     } catch (error) {
-      // console.log(error)
+      console.log(error.response.status)
 
+      if(error.response.status === 404) {
+        return res
+          .status(404)
+          .json({ success: false, message:error.response.data.message  });
+      }
       // error logging
       errorLogger.error({
         Route:req.url,
@@ -62,7 +71,7 @@ exports.addProject = async (req, res) => {
 
       return res
         .status(404)
-        .json({ success: false, message: "Wrong stakeholders data" });
+        .json({ success: false, message:error.message  });
     }
 
     // Info Logging
@@ -72,14 +81,119 @@ exports.addProject = async (req, res) => {
       RequestBody: { name, ownership, key, manager, lead },
     });
 
+    const randomNumber = Math.floor(Math.random() * 900+ 100).toString()
+
     const project = await Project.create({
       name,
       ownership: projectOwner,
-      key,
+      key:`${key}-${randomNumber}`,
       manager: projectManager,
       lead: projectLead,
       companyId: req.user.company,
     });
+
+
+    // creating setting pages deafult items
+    // 1 creating baord
+    const boardsData = [
+      {
+        name: "To Do",
+        color: "3E86F0"
+      },
+      {
+        name: "In Progress",
+        color: "FF505F"
+      },
+      {
+        name: "Completed",
+        color: "326632"
+      }
+    ]
+
+    for(const element of boardsData) {
+      const {name,color} = element
+      const boards = await Board.create({
+        name,
+        color,
+        projectId:project._id
+      })
+    }
+    
+    // 2. Creating status
+    const statusData = [
+      {
+        name:"To Do",
+        before:[],
+        after:["In Progress"]
+      },
+
+      {
+        name:"In Progress",
+        before:["To Do"],
+        after:["Completed"]
+      },
+
+      {
+        name:"Completed",
+        before:["In Progress"],
+        after:["To Do", "In Progress"]
+      }
+    ]
+
+    for(const element of statusData) {
+      const {name, before, after} = element
+
+      const status = await Status.create({
+        name,
+        before,
+        after,
+        projectId:project._id
+      })
+    }
+
+    // 3. Creating Issue types
+    const issueTypeData = [
+      {
+        name:"Bug"
+      },
+
+      {
+        name:"Epic"
+      },
+    ]
+
+    for(const element of issueTypeData ) {
+      const {name} = element
+
+      const issuetype = await IssueType.create({
+        name,
+        projectId:project._id
+      })
+    }
+
+    // 4. Creating Priority 
+    const priorityData = [
+      {
+        name:"High"
+      },
+
+      {
+        name:"Medium"
+      },
+
+      {
+        name:"Low"
+      }
+    ]
+
+    for(const element of priorityData) {
+      const {name} = element
+
+      const priority = await Priority.create({
+        name,
+        projectId:project._id
+      })
+    }
 
     return res
       .status(200)
