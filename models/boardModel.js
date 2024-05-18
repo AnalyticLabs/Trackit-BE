@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const boardSchema = new mongoose.Schema({
     name:{
         type: String,
-        required: [true, "Please Provide board name"]
+        required: [true, "Please Provide board name"],
+        unique: true
     },
 
     color:{
