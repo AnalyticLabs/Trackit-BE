@@ -7,8 +7,9 @@ const { getBoard } = require("../controllers/board");
 const { getIssueTypes } = require("../controllers/issueType");
 const { getPriorityTypes } = require("../controllers/priorityType");
 const { getStatus } = require("../controllers/status");
-const { myInfo, logout } = require("../controllers/auth");
+const { myInfo, logout, searchUsers } = require("../controllers/auth");
 const { getSprint } = require("../controllers/sprint");
+const { getEpic, getStory } = require("../controllers/task");
 
 /**
  * @swagger
@@ -37,5 +38,9 @@ router.route('/my-info').get(verifyToken,myInfo)
 router.route('/logout').get(verifyToken,logout)
 
 router.route('/get-sprint').get(verifyToken,getSprint)
+router.route('/get-epic').get(verifyToken,getEpic)
+router.route('/get-story').get(verifyToken,getStory)
+router.route('/search-employees').get(verifyToken,searchUsers)
+
 
 module.exports = router;

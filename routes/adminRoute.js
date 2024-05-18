@@ -6,6 +6,7 @@ const { addIssue, deleteIssue } = require("../controllers/issueType");
 const { addPriorityType, deletePriority } = require("../controllers/priorityType");
 const { addStatus, deleteStatus } = require("../controllers/status");
 const { createSprint, editSprint, markComplete } = require("../controllers/sprint");
+const { createEpic, createStory, createTask } = require("../controllers/task");
 const router = express.Router();
 
 // project Route
@@ -27,6 +28,12 @@ router.route('/delete-status').post(verifyToken,deleteStatus)
 router.route('/create-sprint').post(verifyToken,createSprint)
 router.route('/edit-sprint').post(verifyToken,editSprint)
 router.route('/mark-complete').post(verifyToken,markComplete)
+
+//Tasks Routes
+router.route('/create-epic').post(verifyToken,createEpic)
+router.route('/create-story').post(verifyToken,createStory)
+router.route('/create-task').post(verifyToken,createTask)
+
 
 
 module.exports = router;
