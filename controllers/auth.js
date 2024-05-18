@@ -96,8 +96,39 @@ exports.logout = async(req,res) =>{
 
         return res.status(200).json({user, message: "Logged Out Successfully" });
     } catch (error) {
-        console.log(error)
+        // console.log(error)
 
         return res.status(500).json({success:false,message:"Internal Server Error"})
+    }
+}
+
+exports.searchUsers = async(req,res) =>{
+    try {
+        const MONNIT_URL = process.env.MONNIT_URL
+        const token = req.user.accessToken
+        const {search} = req.query
+        let users;
+        // monnit API call
+        try {
+            const response = await axios.get(
+                `${MONNIT_URL}/api/search-users?search=${search}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                }
+            )
+            
+            users = response.data
+            // console.log(response.data)
+        } catch (error) {
+            // console.log(error)
+            return res.status({success:false,message:"Error getting Users Details"})
+        }
+        
+        return res.json({success:true,users})
+    } catch (error) {
+        // console.log(error)
+        return res.status(500).json({success:false,message:"Internal Server error"})
     }
 }
