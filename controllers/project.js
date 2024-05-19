@@ -54,7 +54,7 @@ exports.addProject = async (req, res) => {
       projectLead = response.data.projectLead;
       projectManager = response.data.projectManager;
     } catch (error) {
-      console.log(error.response.status)
+      // console.log(error.response.status)
 
       if(error.response.status === 404) {
         return res
@@ -81,12 +81,12 @@ exports.addProject = async (req, res) => {
       RequestBody: { name, ownership, key, manager, lead },
     });
 
-    const randomNumber = Math.floor(Math.random() * 900+ 100).toString()
+    
 
     const project = await Project.create({
       name,
       ownership: projectOwner,
-      key:`${key}-${randomNumber}`,
+      key,
       manager: projectManager,
       lead: projectLead,
       companyId: req.user.company,
@@ -199,19 +199,28 @@ exports.addProject = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Project added successfully", project });
   } catch (error) {
-    // console.log(error);
+    console.log(error);
+    if (error.code === 11000) { 
 
+      // const fieldName = Object.keys(error.keyValue)[];
+      const fieldName = error.keyValue.key;
+
+      return res.status(409).json({success:false,message:`Key with name ${fieldName} already exists`});
+    
+    } else{
     // error logging
-    errorLogger.error({
+      errorLogger.error({
       Route: req.url,
       UserId: req.user._id,
       RequestBody: { name, ownership, key, manager, lead },
       Error: error.message,
-    });
+  });
 
-    res
-      .status(500)
-      .json({ success: false, message: "Unable to add project. Server Error" });
+res
+  .status(500)
+  .json({ success: false, message: "Unable to add project. Server Error" });
+      }
+    
   }
 };
 
