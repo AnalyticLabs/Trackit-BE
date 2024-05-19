@@ -16,7 +16,7 @@ exports.addIssue = async(req,res) =>{
 
         for(const element of issues) {
             const {name } = element
-            const nameExist = await IssueType.findOne({name})
+            const nameExist = await IssueType.findOne({name,projectId})
             if(nameExist) {
                 return res.status(409).json({
                     success:false,
@@ -53,7 +53,7 @@ exports.addIssue = async(req,res) =>{
         
 
     } catch (error) {
-        // console.log(error)
+        console.log(error)
 
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
