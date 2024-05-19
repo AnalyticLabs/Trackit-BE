@@ -199,7 +199,7 @@ exports.addProject = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Project added successfully", project });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     if (error.code === 11000) { 
 
       // const fieldName = Object.keys(error.keyValue)[];
