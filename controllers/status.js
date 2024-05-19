@@ -17,7 +17,7 @@ exports.addStatus = async(req,res) =>{
 
         for(const element of status) {
             const {name ,before,after} = element
-            const nameExist = await Status.findOne({name})
+            const nameExist = await Status.findOne({name,projectId})
             if(nameExist) {
                 return res.status(409).json({
                     success:false,

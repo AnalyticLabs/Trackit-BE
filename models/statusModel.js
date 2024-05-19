@@ -4,7 +4,6 @@ const statusSchema = new mongoose.Schema({
     name:{
         type: String,
         required: [true, "Please Provide board name"],
-        unique: true
     },
 
     before:{
