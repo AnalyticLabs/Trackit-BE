@@ -20,6 +20,12 @@ const statusSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Project',
         required: [true, "Please provide the Project ID"]
+    },
+
+    
+    canBeDeleted:{
+        type:Boolean,
+        default: true
     }
 },
 {
