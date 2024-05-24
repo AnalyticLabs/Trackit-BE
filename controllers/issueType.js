@@ -81,8 +81,10 @@ exports.deleteIssue = async(req,res) =>{
     try {
         const {issueId} = req.body
 
-        const issue = await IssueType.findByIdAndDelete({_id: issueId})
-
+        const issue = await IssueType.findById({_id: issueId})
+        if(issue.canBeDeleted === false) {
+            return res.status(403).json({success:false,message:"Cannot Delete This issue item"})
+        }
         return res.status(200).json({success:true,message:"IssueType deleted successfully"})
     } catch (error) {
         // console.log(error)

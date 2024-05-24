@@ -61,7 +61,7 @@ exports.createSprint = async(req,res) =>{
         
 
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
@@ -129,14 +129,23 @@ exports.getSprint = async(req,res) =>{
 
         const sprint = await Sprint.find({projectId})
             .populate({
-                path:"tasks", select:" status  title description assignee storyId",
-                populate:{
-                    path:"storyId", select:"title description epicId assignee",
-                    populate:{
-                        path:"epicId", select:"title description assignee"
+                path:"tasks", select:" status  title description assignee type tags priority linkedTask storyId",
+                populate:[
+                    {path:"linkedTask", select:"title status tags"},
+                
+                    {
+                        path:"storyId", select:"title description epicId assignee",
+                        populate:[
+                            {
+                                path:"epicId", select:"title description assignee"
+                            }
+                        ]
                     }
-                }
+                
+                ]
             }).select('name startDate endDate isComplete tasks')
+
+        
         const count = await Sprint.find({projectId}).countDocuments() 
 
             if(!sprint ) {

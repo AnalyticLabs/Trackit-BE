@@ -22,9 +22,9 @@ const epicSchema = new mongoose.Schema({
         required: [false, "Please provide tags"],
     }],
 
-    sprintId:{
+    projectId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Sprint',
+        ref: 'Project',
         required: [true, "Please provide the Sprint ID"]
     },
     

@@ -97,6 +97,9 @@ exports.deleteBoard = async(req,res) =>{
         if(!board) {
             return res.status(404).json({success:false,message:"Board not found by this ID"})
         }
+        if(board.canBeDeleted === false) {
+            return res.status(403).json({success:false,message:"Cannot Delete This board item"})
+        }
 
         await Board.deleteOne({_id:boardId})
 
