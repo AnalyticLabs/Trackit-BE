@@ -98,7 +98,10 @@ exports.getStatus = async (req,res) =>{
 exports.deleteStatus = async(req,res) =>{
     try {
         const {statusId} = req.body;
-        const status = await Status.findByIdAndDelete({_id:statusId});
+        const status = await Status.findById({_id:statusId});
+        if(status.canBeDeleted === false) {
+            return res.status(403).json({success:false,message:"Cannot Delete This Status item"})
+        }
 
         return res.status(200).json({success:true,message:"Status delete successfully"})
     } catch (error) {
