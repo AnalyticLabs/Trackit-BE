@@ -115,28 +115,29 @@ exports.addProject = async (req, res) => {
       const boards = await Board.create({
         name,
         color,
-        projectId:project._id
+        projectId:project._id,
+        canBeDeleted:false
       })
     }
     
     // 2. Creating status
     const statusData = [
       {
-        name:"To Do",
+        name:"Todo",
         before:[],
         after:["In Progress"]
       },
 
       {
         name:"In Progress",
-        before:["To Do"],
+        before:["Todo"],
         after:["Completed"]
       },
 
       {
         name:"Completed",
         before:["In Progress"],
-        after:["To Do", "In Progress"]
+        after:[]
       }
     ]
 
@@ -147,7 +148,8 @@ exports.addProject = async (req, res) => {
         name,
         before,
         after,
-        projectId:project._id
+        projectId:project._id,
+        canBeDeleted:false
       })
     }
 
@@ -167,7 +169,8 @@ exports.addProject = async (req, res) => {
 
       const issuetype = await IssueType.create({
         name,
-        projectId:project._id
+        projectId:project._id,
+        canBeDeleted:false
       })
     }
 
@@ -191,7 +194,8 @@ exports.addProject = async (req, res) => {
 
       const priority = await Priority.create({
         name,
-        projectId:project._id
+        projectId:project._id,
+        canBeDeleted:false
       })
     }
 
