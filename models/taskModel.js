@@ -22,17 +22,23 @@ const taskSchema = new mongoose.Schema({
         required: [true, "Please provide the assigniee"],
     },
 
-    issueType:{
+    type:{
         type: String,
         // ref: 'Task',
         required: [true, "Please provide the issue type"]
     },
 
-    storyId:{
+    storyId:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Story',
         required: [true, "Please provide the story ID"]
-    },
+    }],
+
+    linkedTask:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Task',
+        required: [false, "Please provide the story ID"]
+    }],
 
     sprintId:{
         type: mongoose.Schema.Types.ObjectId,
@@ -50,9 +56,10 @@ const taskSchema = new mongoose.Schema({
         required: [true, "Please Provide Priority"]
     },
 
-    // expectedTime:{
-
-    // }
+    expectedTime:{
+      type:String,
+      required: [true, "Please provide expected time"]
+    }
     
     
 },
