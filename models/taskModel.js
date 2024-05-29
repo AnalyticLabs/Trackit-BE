@@ -58,7 +58,13 @@ const taskSchema = new mongoose.Schema({
     expectedTime:{
       type:String,
       required: [true, "Please provide expected time"]
-    }
+    },
+
+    projectId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Project',
+        required: [true, "Please provide the Project ID"]
+    },
     
     
 },
