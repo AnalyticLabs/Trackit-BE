@@ -65,14 +65,15 @@ exports.createStory = async(req,res) =>{
             return res.status(403).json({success:false,message:"Only Admins are allowed to access this route"})
         }
         
-        const {title, description, tags, assignee, epicId} = req.body
+        const {title, description, tags, assignee, epicId,  projectId} = req.body
         
         const story = await Story.create({
             title,
             description,
             tags,
             assignee,
-            epicId
+            epicId,
+            projectId
         })
         
         return res.status(200).json({
@@ -87,8 +88,8 @@ exports.createStory = async(req,res) =>{
 
 exports.getStory = async(req,res) =>{
     try {
-        const {search} = req.query
-        const story = await Story.find({title:{$regex:search,$options:'i'}})
+        const {search, projectId} = req.query
+        const story = await Story.find({title:{$regex:search,$options:'i'},projectId})
             .select('epicId title  tags')
 
         return res.status(200).json({success:true,story})
@@ -118,7 +119,8 @@ exports.createTask = async(req,res) =>{
             tags, 
             priority, 
             status,
-            expectedTime
+            expectedTime,
+            projectId
         } = req.body
 
 
@@ -134,17 +136,18 @@ exports.createTask = async(req,res) =>{
             tags, 
             priority, 
             status,
-            expectedTime
+            expectedTime,
+            projectId
         })
 
         const sprint = await Sprint.findByIdAndUpdate(sprintId,{$push:{tasks:task._id}})
             .select('projectId')
         //
         // chceking for IssueType
-        const projectId = sprint.projectId
-        const usedDataExist = await UsedData.findOne({projectId})
-        const usedIssue = await IssueType.findOne({name:type,projectId:projectId})
-        const usedPriority = await Priority.findOne({name:priority,projectId:projectId})
+        const projectID = sprint.projectId
+        const usedDataExist = await UsedData.findOne({projectID})
+        const usedIssue = await IssueType.findOne({name:type,projectId:projectID})
+        const usedPriority = await Priority.findOne({name:priority,projectId:projectID})
 
         if(!usedDataExist) {
 
@@ -154,11 +157,11 @@ exports.createTask = async(req,res) =>{
                 // {$addToSet:{priority:usedPriority._id}}
                 issueTypes:usedIssue._id,
                 priorities:usedPriority._id ,
-                projectId:projectId
+                projectId:projectID
             })
         
         } else{
-            const usedDataDoc = await UsedData.updateOne({projectId},
+            const usedDataDoc = await UsedData.updateOne({projectID},
                 {$addToSet :
                     {issueTypes:usedIssue._id,
                     priorities:usedPriority._id}
@@ -283,6 +286,20 @@ exports.deleteTask = async(req,res) =>{
         return res.status(200).json({success:true,message:"Task deleted successfully"})
     } catch (error) {
         // console.error(error)
+        return res.status(500).json({success:false,message:"Internal Server Error"})
+    }
+}
+
+exports.searchTask = async(req,res) =>{
+    try {
+        const {search, projectId} = req.query
+        const tasks = await Task.find({title:{$regex:search,$options:'i'},projectId})
+            .select('title _id')
+
+        return res.status(200).json({success:true,tasks})
+    } catch (error) {
+        // console.log(error)
+
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }

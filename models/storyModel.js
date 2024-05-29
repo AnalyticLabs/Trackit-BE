@@ -27,6 +27,12 @@ const storySchema = new mongoose.Schema({
         ref: 'Epic',
         required: [true, "Please provide the Epic ID"]
     },
+
+    projectId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Project',
+        required: [true, "Please provide the Project ID"]
+    },
     
     
     
