@@ -65,14 +65,15 @@ exports.createStory = async(req,res) =>{
             return res.status(403).json({success:false,message:"Only Admins are allowed to access this route"})
         }
         
-        const {title, description, tags, assignee, epicId} = req.body
+        const {title, description, tags, assignee, epicId,  projectId} = req.body
         
         const story = await Story.create({
             title,
             description,
             tags,
             assignee,
-            epicId
+            epicId,
+            projectId
         })
         
         return res.status(200).json({
@@ -87,8 +88,8 @@ exports.createStory = async(req,res) =>{
 
 exports.getStory = async(req,res) =>{
     try {
-        const {search} = req.query
-        const story = await Story.find({title:{$regex:search,$options:'i'}})
+        const {search, projectId} = req.query
+        const story = await Story.find({title:{$regex:search,$options:'i'},projectId})
             .select('epicId title  tags')
 
         return res.status(200).json({success:true,story})
