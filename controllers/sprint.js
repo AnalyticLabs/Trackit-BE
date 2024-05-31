@@ -129,7 +129,7 @@ exports.getSprint = async(req,res) =>{
 
         const sprint = await Sprint.find({projectId})
             .populate({
-                path:"tasks", select:" status  title description assignee type tags priority linkedTask storyId",
+                path:"tasks", select:" status expectedTime title description assignee type tags priority linkedTask storyId",
                 populate:[
                     {path:"linkedTask", select:"title status tags"},
                 

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {projectRecord} = require("../controllers/project");
+const {projectRecord, getProject} = require("../controllers/project");
 const verifyToken = require("../middleware/authenticate");
 const { getBoard } = require("../controllers/board");
 const { getIssueTypes } = require("../controllers/issueType");
@@ -43,6 +43,9 @@ router.route('/get-story').get(verifyToken,getStory)
 router.route('/search-employees').get(verifyToken,searchUsers)
 router.route('/get-tasks').get(verifyToken,getTask)
 router.route('/search-tasks').get(verifyToken,searchTask)
+
+// Get project for monnit
+router.route('/get-projects').get(verifyToken,getProject)
 
 
 module.exports = router;

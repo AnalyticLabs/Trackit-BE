@@ -4,6 +4,7 @@ const Board = require('../models/boardModel')
 const Status = require("../models/statusModel")
 const Priority = require("../models/priorityTypeModel")
 const IssueType = require('../models/issueTypeModel')
+const Task = require('../models/taskModel')
 const { default: axios } = require("axios");
 const { errorLogger, logger } = require("../utils/winstonLogger");
 const jwt = require("jsonwebtoken");
@@ -414,3 +415,32 @@ exports.projectRecord = async (req, res) => {
       .json({ success: false, message: "Internal server error" });
   }
 };
+
+exports.getProject = async(req,res) =>{
+  try {
+
+    const {user} = req.query
+    // console.log(req.user)
+    const tasks = await Task.find({assignee:user})
+      .select('title description status projectId')
+      .populate('projectId', 'name')
+
+    const groupedTasks = {}
+    tasks.forEach(task => {
+      if (!groupedTasks[task.projectId.name]) {
+          groupedTasks[task.projectId.name] = [];
+      }
+      groupedTasks[task.projectId.name].push({
+        title:task.title,
+        description:task.description,
+        status:task.status === "Completed" ? "Completed" : "Ongoing"
+      });
+  });
+    // console.log(groupedTasks)
+    return res.status(200).json(groupedTasks)
+
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({success:false,message:"Internal Server Error"})
+  }
+}
