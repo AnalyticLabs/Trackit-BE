@@ -118,7 +118,6 @@ exports.createTask = async(req,res) =>{
             linkedTask, 
             tags, 
             priority, 
-            status,
             expectedTime,
             projectId
         } = req.body
@@ -135,7 +134,7 @@ exports.createTask = async(req,res) =>{
             sprintId, 
             tags, 
             priority, 
-            status,
+            status:"Todo",
             expectedTime,
             projectId
         })
@@ -297,6 +296,40 @@ exports.searchTask = async(req,res) =>{
             .select('title _id')
 
         return res.status(200).json({success:true,tasks})
+    } catch (error) {
+        // console.log(error)
+
+        return res.status(500).json({success:false,message:"Internal Server Error"})
+    }
+}
+
+exports.getTask = async(req,res) =>{
+    try {
+        const {projectId} = req.query
+        const tasks = await Task.find({projectId})
+            .select(' _id status title description assignee storyId linkedTask sprintId tags priority expectedTime ')
+            .populate([
+                {path:"linkedTask", select:"title status tags"},
+                {
+                    path:"storyId", select:"title description epicId assignee",
+                    populate:[
+                        {
+                            path:"epicId", select:"title description assignee"
+                        }
+                    ]
+                }
+            ])
+
+        const groupedTasks = {};
+        tasks.forEach(task => {
+            if (!groupedTasks[task.status]) {
+                groupedTasks[task.status] = [];
+            }
+            groupedTasks[task.status].push(task);
+        });
+        
+        const count = await Task.find({projectId}).countDocuments()
+        return res.status(200).json({success:true,TotalCount:count,groupedTasks})
     } catch (error) {
         // console.log(error)
 
