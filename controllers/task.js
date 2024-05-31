@@ -307,7 +307,7 @@ exports.getTask = async(req,res) =>{
     try {
         const {projectId} = req.query
         const tasks = await Task.find({projectId})
-            .select(' _id status title description assignee storyId linkedTask sprintId tags priority expectedTime ')
+            .select(' _id status title description type assignee storyId linkedTask sprintId tags priority expectedTime ')
             .populate([
                 {path:"linkedTask", select:"title status tags"},
                 {
