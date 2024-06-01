@@ -6,7 +6,7 @@ const { addIssue, deleteIssue } = require("../controllers/issueType");
 const { addPriorityType, deletePriority } = require("../controllers/priorityType");
 const { addStatus, deleteStatus } = require("../controllers/status");
 const { createSprint, editSprint, markComplete } = require("../controllers/sprint");
-const { createEpic, createStory, createTask, UsedDataInfo, getTask, addLinkedTask, addStory, mail } = require("../controllers/task");
+const { createEpic, createStory, createTask, UsedDataInfo, getTask, addLinkedTask, addStory, mail, changeAssignee, changePriority, changeStatus } = require("../controllers/task");
 const router = express.Router();
 
 // project Route
@@ -38,6 +38,9 @@ router.route('/create-task').post(verifyToken,createTask)
 router.route('/add-linked-task').post(verifyToken,addLinkedTask)
 router.route('/add-story').post(verifyToken,addStory)
 router.route('/email').get(verifyToken,mail)
+router.route('/change-assignee').post(verifyToken,changeAssignee)
+router.route('/change-priority').post(verifyToken,changePriority)
+router.route('/change-status').post(verifyToken,changeStatus)
 
 
 module.exports = router;

@@ -65,6 +65,24 @@ const taskSchema = new mongoose.Schema({
         ref: 'Project',
         required: [true, "Please provide the Project ID"]
     },
+
+    logTime:[{
+        _id:false,
+       user: {
+            type:String,
+            required: [true, "Please provide the username"]
+        },
+
+        timeSpent:{
+            type:String,
+            required: [true, "Please provide time Spent"]
+        },
+        createdAt:{
+            type:Date,
+            required: [true, "Please provide created At Time"] 
+        },
+        
+    }]
     
     
 },
