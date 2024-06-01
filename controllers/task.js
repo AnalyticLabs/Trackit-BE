@@ -241,7 +241,20 @@ exports.addStory = async(req,res) =>{
 exports.changePriority = async(req,res) =>{
     try {
         const {taskId, priority} = req.body
+        
+        if(!taskId || !priority) {return res.status(400).json({
+            success:false,message:"Please Provide TaskId & status "
+        })}
+
         const task = await Task.findById({_id:taskId})
+        if(!task) {
+            return res.status(404).json({success:false,message:"No Task Found with this ID"})
+        }
+
+        const validPriority = await Priority.findOne({name:priority,projectId:task.projectId})
+        if(!validPriority) {
+            return res.status(404).json({success:false,message:"No Priority Found with this Name"})
+        }
         task.priority = priority
         await task.save()
 
@@ -256,6 +269,10 @@ exports.changePriority = async(req,res) =>{
 exports.changeAssignee = async(req,res) =>{
     try {
         const {taskId, newAssignee} = req.body
+        if(!taskId || !newAssignee) {return res.status(400).json({
+            success:false,message:"Please Provide TaskId & New Assignee"
+        })}
+
         const task = await Task.findById({_id:taskId}).select("assignee")
         if(!task) {
             return res.status(404).json({success:false,message:"No Task Found with this ID"})
@@ -264,6 +281,8 @@ exports.changeAssignee = async(req,res) =>{
         const oldAssignee = task.assignee
         task.assignee = newAssignee
         await task.save()
+
+        return res.status(200).json({success:true,message:"Assigne changed Successfully"})
     } catch (error) {
         // console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
@@ -346,5 +365,75 @@ exports.mail= async(req,res) =>{
     } catch (error) {
         // console.log(error)
         return res.status(500).json({success:false,message:"error sending email"})
+    }
+}
+
+exports.changeStatus = async(req,res) =>{
+    try {
+        
+        const {taskId, status} = req.body
+        
+        if(!taskId || !status) {return res.status(400).json({
+            success:false,message:"Please Provide TaskId & status "
+        })}
+
+        const task = await Task.findById({_id:taskId})
+        if(!task) {
+            return res.status(404).json({
+                success:false,message:"No task found with this ID"
+            })
+        }
+
+        const allowedStatus = await Status.findOne({name:task.status})
+        const validStatus = await Status.findOne({name:status,projectId:task.projectId})
+        if(!validStatus) {
+            return res.status(404).json({
+                success:false,message:"No status found with this name"
+            })
+        }
+        // console.log(allowedStatus)
+        // Throw error if user change status which doesnt follow status life cycle from setting page
+        if( !allowedStatus.before.includes(status) && !allowedStatus.after.includes(status) ) {
+            return res.status(422).json({
+                success:false,message:`Cannot Change Task Status directly to ${status}`
+            })
+        }
+        task.status = status
+        await task.save()
+
+        return res.status(200).json({success:true,message:"Changed task Status Successfully!"})
+
+    } catch (error) {
+        // console.log(error)
+        return res.status(200).json({success:false,message:"Internal Server Error"})
+    }
+}
+
+exports.addLogTime = async(req,res) =>{
+    try {
+        const {taskId, time} = req.body
+        const task = await Task.findById({_id:taskId})
+        if(!task) {
+            return res.status(404).json({success:false,message:"No Task Found With this ID"})
+        }
+        
+        time = time.trim();
+        const logTime = {
+            user: req.user.username,
+            timeSpent:time,
+            createdAt:Date.now()
+        }
+
+        task.logTime.push(logTime)
+        await task.save()
+
+        return res.status(200).json({
+            success:true,
+            message:"Log time Added successfully",
+            logTime: task.logTime[task.logTime.length - 1]
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }

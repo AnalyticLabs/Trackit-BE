@@ -9,7 +9,7 @@ const { getPriorityTypes } = require("../controllers/priorityType");
 const { getStatus } = require("../controllers/status");
 const { myInfo, logout, searchUsers } = require("../controllers/auth");
 const { getSprint } = require("../controllers/sprint");
-const { getEpic, getStory, searchTask, getTask } = require("../controllers/task");
+const { getEpic, getStory, searchTask, getTask, addLogTime } = require("../controllers/task");
 
 /**
  * @swagger
@@ -43,6 +43,7 @@ router.route('/get-story').get(verifyToken,getStory)
 router.route('/search-employees').get(verifyToken,searchUsers)
 router.route('/get-tasks').get(verifyToken,getTask)
 router.route('/search-tasks').get(verifyToken,searchTask)
+router.route('/add-log-time').post(verifyToken,addLogTime)
 
 // Get project for monnit
 router.route('/get-projects').get(verifyToken,getProject)
