@@ -7,6 +7,7 @@ const Status = require("../models/statusModel")
 const Priority = require("../models/priorityTypeModel")
 const IssueType = require('../models/issueTypeModel')
 const UsedData = require('../models/usedDataModel')
+const History = require('../models/taskHistoryModel')
 const { sendEmail } = require('../utils/email')
 
 exports.createEpic = async(req,res) =>{
@@ -282,6 +283,21 @@ exports.changeAssignee = async(req,res) =>{
         task.assignee = newAssignee
         await task.save()
 
+        // logging this change to Task History
+        await History.create({
+            user:{
+                username:req.user.username,
+                avtar:req.user.avtar
+            },
+            type:"AssigneeLog",
+            assignee:{
+                oldAssignee,
+                newAssignee
+            },
+            time:Date.now(),
+            task:taskId
+        })
+
         return res.status(200).json({success:true,message:"Assigne changed Successfully"})
     } catch (error) {
         // console.log(error)
@@ -391,6 +407,7 @@ exports.changeStatus = async(req,res) =>{
                 success:false,message:"No status found with this name"
             })
         }
+        const oldStatus = task.status
         // console.log(allowedStatus)
         // Throw error if user change status which doesnt follow status life cycle from setting page
         if( !allowedStatus.before.includes(status) && !allowedStatus.after.includes(status) ) {
@@ -400,6 +417,21 @@ exports.changeStatus = async(req,res) =>{
         }
         task.status = status
         await task.save()
+
+          // logging this change to Task History
+          await History.create({
+            user:{
+                username:req.user.username,
+                avtar:req.user.avtar
+            },
+            type:"statusLog",
+            status:{
+                oldStatus,
+                newStatus:status
+            },
+            time:Date.now(),
+            task:taskId
+        })
 
         return res.status(200).json({success:true,message:"Changed task Status Successfully!"})
 
