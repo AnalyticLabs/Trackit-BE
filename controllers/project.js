@@ -98,7 +98,7 @@ exports.addProject = async (req, res) => {
     // 1 creating baord
     const boardsData = [
       {
-        name: "To Do",
+        name: "Todo",
         color: "3E86F0"
       },
       {
