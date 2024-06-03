@@ -10,6 +10,7 @@ const { getStatus } = require("../controllers/status");
 const { myInfo, logout, searchUsers } = require("../controllers/auth");
 const { getSprint } = require("../controllers/sprint");
 const { getEpic, getStory, searchTask, getTask, addLogTime } = require("../controllers/task");
+const { addComment, getComments, editComment, deleteComment, getHistory } = require("../controllers/comment");
 
 /**
  * @swagger
@@ -44,6 +45,12 @@ router.route('/search-employees').get(verifyToken,searchUsers)
 router.route('/get-tasks').get(verifyToken,getTask)
 router.route('/search-tasks').get(verifyToken,searchTask)
 router.route('/add-log-time').post(verifyToken,addLogTime)
+router.route('/add-comment').post(verifyToken,addComment)
+router.route("/get-comment").get(verifyToken,getComments)
+router.route('/edit-comment').post(verifyToken,editComment)
+router.route('/delete-comment').delete(verifyToken,deleteComment)
+router.route('/get-history').get(verifyToken,getHistory)
+
 
 // Get project for monnit
 router.route('/get-projects').get(verifyToken,getProject)

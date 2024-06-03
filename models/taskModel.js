@@ -36,7 +36,7 @@ const taskSchema = new mongoose.Schema({
     linkedTask:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Task',
-        required: [false, "Please provide the story ID"]
+        required: [false, "Please provide the Task ID"]
     }],
 
     sprintId:{
