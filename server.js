@@ -6,6 +6,7 @@ const cors = require("cors");
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const { createFolder } = require("./utils/winstonLogger");
+const { createBacklog } = require("./utils/cronJob");
 
 // const { connectDBs } = require("./DBconnection");
 
@@ -24,6 +25,7 @@ const PORT = process.env.T_PORT || 8000;
 createFolder()
 server.listen(PORT, () => {
     console.log(`Server running on ${PORT}`);
+    createBacklog.start()
 });
 
 

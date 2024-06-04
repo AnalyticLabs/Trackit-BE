@@ -44,9 +44,9 @@ exports.createEpic = async(req,res) =>{
 
 exports.getEpic = async(req,res) =>{
     try {
-        const {search} = req.query
+        const {search,projectId} = req.query
 
-        const epic = await Epic.find({title:{$regex:search,$options:'i'}}).select('_id title')
+        const epic = await Epic.find({title:{$regex:search,$options:'i'},projectId}).select('_id title')
         if(!epic) {
             return res.status(404).json({success:false,message:"No epic found"})
         }
@@ -342,9 +342,10 @@ exports.getTask = async(req,res) =>{
     try {
         const {projectId} = req.query
         const tasks = await Task.find({projectId})
-            .select(' _id status title description type assignee storyId linkedTask sprintId tags priority expectedTime ')
+            .select(' _id status title description type assignee storyId linkedTask sprintId tags logTime priority expectedTime ')
             .populate([
                 {path:"linkedTask", select:"title status tags"},
+                {path:"sprintId", select:"name"},
                 {
                     path:"storyId", select:"title description epicId assignee",
                     populate:[
@@ -363,7 +364,16 @@ exports.getTask = async(req,res) =>{
             groupedTasks[task.status].push(task);
         });
         
-        const count = await Task.find({projectId}).countDocuments()
+        let count = tasks.reduce((count, task) => {
+            if (!count[task.status]) {
+                count[task.status] = 0;
+            }
+            count[task.status]++;
+            return count;
+        }, {});
+        
+        
+        // const count = await Task.find({projectId}).countDocuments()
         return res.status(200).json({success:true,TotalCount:count,groupedTasks})
     } catch (error) {
         // console.log(error)
