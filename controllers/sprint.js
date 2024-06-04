@@ -129,7 +129,7 @@ exports.getSprint = async(req,res) =>{
 
         const sprint = await Sprint.find({projectId})
             .populate({
-                path:"tasks", select:" status expectedTime title description assignee type tags priority linkedTask storyId",
+                path:"tasks", select:" status expectedTime title description assignee type tags priority logTime linkedTask storyId",
                 populate:[
                     {path:"linkedTask", select:"title status tags"},
                 
@@ -145,8 +145,14 @@ exports.getSprint = async(req,res) =>{
                 ]
             }).select('name startDate endDate isComplete tasks')
 
+        let count = {};
         
-        const count = await Sprint.find({projectId}).countDocuments() 
+        for(const element of sprint){
+            const {tasks} = element
+            count[element.name] = tasks.length
+        } 
+
+        // const count = await Sprint.find({projectId}).countDocuments() 
 
             if(!sprint ) {
                 return res.status(404).json({success:false,message:"No sprints found for this project"})
