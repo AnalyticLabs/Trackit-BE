@@ -8,10 +8,10 @@ const { getIssueTypes } = require("../controllers/issueType");
 const { getPriorityTypes } = require("../controllers/priorityType");
 const { getStatus } = require("../controllers/status");
 const { myInfo, logout, searchUsers } = require("../controllers/auth");
-const { getSprint } = require("../controllers/sprint");
+const { getSprint, searchSprint } = require("../controllers/sprint");
 const { getEpic, getStory, searchTask, getTask, addLogTime } = require("../controllers/task");
 const { addComment, getComments, editComment, deleteComment, getHistory } = require("../controllers/comment");
-const { getBacklog } = require("../controllers/backlog");
+const { getBacklog, searchBacklog } = require("../controllers/backlog");
 
 /**
  * @swagger
@@ -52,6 +52,8 @@ router.route('/edit-comment').post(verifyToken,editComment)
 router.route('/delete-comment').delete(verifyToken,deleteComment)
 router.route('/get-history').get(verifyToken,getHistory)
 router.route('/get-backlogs').get(verifyToken,getBacklog)
+router.route('/search-backlog').get(verifyToken,searchBacklog)
+router.route('/search-sprints').get(verifyToken,searchSprint)
 
 
 // Get project for monnit
