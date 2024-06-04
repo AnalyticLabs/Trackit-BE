@@ -169,3 +169,23 @@ exports.getSprint = async(req,res) =>{
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
+
+exports.searchSprint = async(req,res) =>{
+    try {
+        const {search, projectId} = req.query
+        if(!search || !projectId) {
+            return res.status(400).json({success:false,message:"Please Provide Both Query Parameter"})
+        }
+
+        const sprints = await Sprint.find({name:{$regex:search,$options:'i'},projectId}).select('_id')
+
+        res.status(200).json({sucess:true,sprints})
+        
+
+
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({sucess:false,message:"Internal Server Error"})
+    }
+}
