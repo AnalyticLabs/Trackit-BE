@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const sprintSchema = new mongoose.Schema({
     name:{
         type: String,
-        unique: true,
         required: [true, "Please Provide board name"]
     },
 
