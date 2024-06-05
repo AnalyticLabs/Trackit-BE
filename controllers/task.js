@@ -8,6 +8,7 @@ const Priority = require("../models/priorityTypeModel")
 const IssueType = require('../models/issueTypeModel')
 const UsedData = require('../models/usedDataModel')
 const History = require('../models/taskHistoryModel')
+const Backlog = require("../models/backlogModel")
 const { sendEmail } = require('../utils/email')
 
 exports.createEpic = async(req,res) =>{
@@ -446,8 +447,18 @@ exports.changeStatus = async(req,res) =>{
                 success:false,message:`Cannot Change Task Status directly to ${status}`
             })
         }
+        
         task.status = status
         await task.save()
+
+        // Removing this task if it exists in backlog
+        if(status === "Completed") {
+
+            const backlog = await Backlog.findOne({task:taskId})
+            if(backlog) {
+                await Backlog.deleteOne({task:taskId})
+            }
+        }
 
           // logging this change to Task History
           await History.create({
@@ -467,7 +478,7 @@ exports.changeStatus = async(req,res) =>{
         return res.status(200).json({success:true,message:"Changed task Status Successfully!"})
 
     } catch (error) {
-        // console.log(error)
+        console.log(error)
         return res.status(200).json({success:false,message:"Internal Server Error"})
     }
 }
