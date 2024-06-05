@@ -22,6 +22,12 @@ exports.createEpic = async(req,res) =>{
         if(!title || !description || !tags || !assignee || !projectId) {
             return res.status(400),json({success:false,message:"All field are required"})
         }
+
+        const isExist = await Epic.findOne({title,projectId})
+        if(isExist) {
+            return res.status(409).json({success:false,message:"Epic with this name already exists"})
+        }
+ 
         const epic = await Epic.create({
             title,
             description,
@@ -37,7 +43,7 @@ exports.createEpic = async(req,res) =>{
             })
 
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
@@ -68,6 +74,11 @@ exports.createStory = async(req,res) =>{
         
         const {title, description, tags, assignee, epicId,  projectId} = req.body
         
+        const isExist = await Story.findOne({title,projectId})
+        if(isExist) {
+            return res.status(409).json({success:false,message:"Story with this name already exists"})
+        }
+
         const story = await Story.create({
             title,
             description,
@@ -123,6 +134,10 @@ exports.createTask = async(req,res) =>{
             projectId
         } = req.body
 
+        const isExist = await Task.findOne({title,projectId})
+        if(isExist) {
+            return res.status(409).json({success:false,message:"Task with this name already exists"})
+        }
 
         // return res.status(200).json("hi")
         const task = await Task.create({
@@ -210,9 +225,14 @@ exports.UsedDataInfo = async(req,res) =>{
 exports.addLinkedTask = async(req,res) =>{
     try {
         const {taskId, linkedTask} = req.body
-        const task = await Task.updateOne(
+
+        if(taskId === linkedTask) {
+            return res.status(409).json({success:false,message:"Cannot link task to itself "})
+        }
+        const task = await Task.findOneAndUpdate(
             {_id:taskId},
             {$addToSet:{linkedTask:linkedTask}},
+            {new:true}
         )
 
         return res.status(200).json({success:true,task})
@@ -227,9 +247,10 @@ exports.addStory = async(req,res) =>{
         
         const {taskId, storyId} = req.body
 
-        const task = await Task.updateOne(
+        const task = await Task.findOneAndUpdate(
             {_id:taskId},
             {$addToSet:{storyId}},
+            {new:true}
         )
 
         return res.status(200).json({success:true,message:"storyID added successfully"})
@@ -347,10 +368,10 @@ exports.getTask = async(req,res) =>{
                 {path:"linkedTask", select:"title status tags"},
                 {path:"sprintId", select:"name"},
                 {
-                    path:"storyId", select:"title description epicId assignee",
+                    path:"storyId", select:"title description epicId tags assignee",
                     populate:[
                         {
-                            path:"epicId", select:"title description assignee"
+                            path:"epicId", select:"title description tags assignee"
                         }
                     ]
                 }

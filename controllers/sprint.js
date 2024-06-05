@@ -39,13 +39,31 @@ exports.createSprint = async(req,res) =>{
 
         const {name, startDate, endDate, projectId} = req.body
 
+        const isExist = await Sprint.findOne({name,projectId})
+        if(isExist) {
+            return res.status(409).json({success:false,message:"Sprint with this name already exists"})
+        }
  
         const sprintStartDate =  convertDate(startDate)
         const sprintEndDate = convertDate(endDate)
-        // console.log("startDate is:",sprintSartDate)
+        // console.log("startDate is:",sprintStartDate)
         // console.log("endDate is:",sprintEndDate)
+        const currentDay = new Date();
 
+        // Date validation
+        if(sprintStartDate < currentDay || sprintEndDate < currentDay) {
+            return res.status(400).json({
+                success:false,
+                message:"Start Date & End Date cannot be less then today"
+            })
         
+        } else if( sprintEndDate < sprintStartDate ) {
+            return res.status(400).json({
+                success:false,
+                message:"End Date cannot be less then Start Date"
+            })
+        }
+  
         const sprint = await Sprint.create({
             name,
             startDate: sprintStartDate,
@@ -61,7 +79,7 @@ exports.createSprint = async(req,res) =>{
         
 
     } catch (error) {
-        // console.log(error)
+        console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
@@ -75,19 +93,39 @@ exports.editSprint = async(req,res) =>{
         }
 
         const {endDate, sprintId} = req.body
-        const sprint = await Sprint.findById({_id:sprintId}).select('_id startDate endDate')
+        const newEndDate = convertDate(endDate)
 
+        const sprint = await Sprint.findById({_id:sprintId}).select('_id startDate endDate')
         if(!sprint) {
             return res.status(200).json({success:false, message:"No Sprint found with this Id."})
         }
-        const newEndDate = convertDate(endDate)
+
+        const currentDay = new Date();
+        // console.log(`current Day is: ${currentDay}`)
+
+        // Date validation
+        if(newEndDate < currentDay) {
+            return res.status(400).json({
+                success:false,
+                message:" End Date cannot be less then today"
+            })
+        
+        } else if( newEndDate < sprint.endDate ) {
+            return res.status(400).json({
+                success:false,
+                message:"End Date cannot be less then Start Date"
+            })
+        }
+
+        
+        
 
         sprint.endDate = newEndDate
         await sprint.save()
 
         return res.status(200).json({success:true,message:"Sprint edited successfully",sprint})
     } catch (error) {
-        // console.log(error)
+        console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
@@ -127,17 +165,18 @@ exports.getSprint = async(req,res) =>{
 
         const {projectId} = req.query
 
-        const sprint = await Sprint.find({projectId})
+        const currentDay = new Date()
+        const sprint = await Sprint.find({projectId,endDate:{$gt:currentDay}})
             .populate({
                 path:"tasks", select:" status expectedTime title description assignee type tags priority logTime linkedTask storyId",
                 populate:[
                     {path:"linkedTask", select:"title status tags"},
                 
                     {
-                        path:"storyId", select:"title description epicId assignee",
+                        path:"storyId", select:"title tags description epicId assignee",
                         populate:[
                             {
-                                path:"epicId", select:"title description assignee"
+                                path:"epicId", select:"title tags description assignee"
                             }
                         ]
                     }
@@ -164,7 +203,7 @@ exports.getSprint = async(req,res) =>{
             sprint
         })
     } catch (error) {
-        // console.log(error)
+        console.log(error)
 
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }

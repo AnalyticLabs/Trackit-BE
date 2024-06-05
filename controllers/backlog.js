@@ -14,10 +14,10 @@ exports.getBacklog = async(req,res) =>{
                 {path:"linkedTask", select:"title status tags"},
             
                 {
-                    path:"storyId", select:"title description epicId assignee",
+                    path:"storyId", select:"title tags description epicId assignee",
                     populate:[
                         {
-                            path:"epicId", select:"title description assignee"
+                            path:"epicId", select:"title tags description assignee"
                         }
                     ]
                 }
