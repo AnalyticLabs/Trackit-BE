@@ -419,9 +419,9 @@ exports.projectRecord = async (req, res) => {
 exports.getProject = async(req,res) =>{
   try {
 
-    const {user} = req.query
+    const {email} = req.query
     // console.log(req.user)
-    const tasks = await Task.find({assignee:user})
+    const tasks = await Task.find({"assignee.email":email})
       .select('title description status projectId')
       .populate('projectId', 'name')
 
@@ -430,6 +430,7 @@ exports.getProject = async(req,res) =>{
       if (!groupedTasks[task.projectId.name]) {
           groupedTasks[task.projectId.name] = [];
       }
+
       groupedTasks[task.projectId.name].push({
         title:task.title,
         description:task.description,
@@ -440,7 +441,7 @@ exports.getProject = async(req,res) =>{
     return res.status(200).json(groupedTasks)
 
   } catch (error) {
-    console.log(error)
+    // console.log(error)
     return res.status(500).json({success:false,message:"Internal Server Error"})
   }
 }
