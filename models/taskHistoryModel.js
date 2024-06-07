@@ -15,11 +15,27 @@ const historySchema = new mongoose.Schema({
 
     assignee:{
         oldAssignee:{
-            type: String,
+            username:{
+                type: String,
+                required: [true, "Please Provide username"]
+            },
+            
+            avtar:{
+                type: String,
+            }
+            
         },
 
         newAssignee:{
-            type: String,
+            username:{
+                type: String,
+                required: [true, "Please Provide username"]
+            },
+            
+            avtar:{
+                type: String,
+            }
+            
         }
     },
 
