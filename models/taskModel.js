@@ -24,6 +24,11 @@ const taskSchema = new mongoose.Schema({
         
         avtar:{
             type: String,
+        },
+
+        email:{
+            type: String,
+            required: [true, "Please Provide email"]
         }
         
     },
