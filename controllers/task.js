@@ -10,6 +10,7 @@ const UsedData = require('../models/usedDataModel')
 const History = require('../models/taskHistoryModel')
 const Backlog = require("../models/backlogModel")
 const { sendEmail } = require('../utils/email')
+const { getUserInfo } = require('../utils/userInfo')
 
 exports.createEpic = async(req,res) =>{
     try {
@@ -28,12 +29,17 @@ exports.createEpic = async(req,res) =>{
         if(isExist) {
             return res.status(409).json({success:false,message:"Epic with this name already exists"})
         }
- 
+        
+        // getting assignee info from monnit db
+        const token = req.user.accessToken;
+        const id = assignee
+        const userInfo = await getUserInfo(token,id)
+
         const epic = await Epic.create({
             title,
             description,
             tags,
-            assignee,
+            assignee:userInfo,
             projectId
         })
 
@@ -80,11 +86,16 @@ exports.createStory = async(req,res) =>{
             return res.status(409).json({success:false,message:"Story with this name already exists"})
         }
 
+        // getting assignee info from monnit db
+        const token = req.user.accessToken;
+        const id = assignee
+        const userInfo = await getUserInfo(token,id)
+
         const story = await Story.create({
             title,
             description,
             tags,
-            assignee,
+            assignee:userInfo,
             epicId,
             projectId
         })
@@ -94,7 +105,7 @@ exports.createStory = async(req,res) =>{
             id:story._id
         })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
@@ -140,11 +151,15 @@ exports.createTask = async(req,res) =>{
             return res.status(409).json({success:false,message:"Task with this name already exists"})
         }
 
-        // return res.status(200).json("hi")
+        // getting assignee info from monnit db
+        const token = req.user.accessToken;
+        const id = assignee
+        const userInfo = await getUserInfo(token,id)
+
         const task = await Task.create({
             title,
             description,
-            assignee, 
+            assignee:userInfo, 
             linkedTask,
             type, 
             storyId, 
@@ -226,6 +241,9 @@ exports.UsedDataInfo = async(req,res) =>{
 exports.addLinkedTask = async(req,res) =>{
     try {
         const {taskId, linkedTask} = req.body
+        if(!taskId || !linkedTask) {
+            return res.status(400).json({success:false,message:"Please Send Both Task Id & Task which is to be linked"})
+        }
 
         if(taskId === linkedTask) {
             return res.status(409).json({success:false,message:"Cannot link task to itself "})
@@ -233,10 +251,14 @@ exports.addLinkedTask = async(req,res) =>{
         const task = await Task.findOneAndUpdate(
             {_id:taskId},
             {$addToSet:{linkedTask:linkedTask}},
-            {new:true}
+            {new:true, populate: [
+                {path:"linkedTask", select:"title status tags"},
+            ]}
         )
+        // console.log(task)
+        const addedTask = task.linkedTask[task.linkedTask.length - 1]
 
-        return res.status(200).json({success:true,task})
+        return res.status(200).json({success:true,addedTask})
     } catch (error) {
         // console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
@@ -247,14 +269,29 @@ exports.addStory = async(req,res) =>{
     try {
         
         const {taskId, storyId} = req.body
+        if(!taskId || !storyId) {
+            return res.status(400).json({success:false,message:"Please Send Both Task Id & Story Id"})
+        }
 
         const task = await Task.findOneAndUpdate(
             {_id:taskId},
             {$addToSet:{storyId}},
-            {new:true}
+            {new:true, populate: [
+                {path:"linkedTask", select:"title status tags"},
+                {path:"sprintId", select:"name"},
+                {
+                    path:"storyId", select:"title description epicId tags assignee",
+                    populate:[
+                        {
+                            path:"epicId", select:" tags "
+                        }
+                    ]
+                }
+            ]}
         )
 
-        return res.status(200).json({success:true,message:"storyID added successfully"})
+        const addedStory = task.storyId[task.storyId.length - 1]
+        return res.status(200).json({success:true,addedStory})
     } catch (error) {
         // console.log(error)
         return res.status(200).json({success:false,message:"Internal Server Error"})
@@ -296,13 +333,25 @@ exports.changeAssignee = async(req,res) =>{
             success:false,message:"Please Provide TaskId & New Assignee"
         })}
 
+        const token = req.user.accessToken;
+        const id = newAssignee
+        const userInfo = await getUserInfo(token,id)
+     
         const task = await Task.findById({_id:taskId}).select("assignee")
         if(!task) {
             return res.status(404).json({success:false,message:"No Task Found with this ID"})
         }
 
-        const oldAssignee = task.assignee
-        task.assignee = newAssignee
+        
+        const oldAssigneeUsername =  task.assignee.username 
+        const oldAssigneeAvtar = task.assignee.avtar
+
+        const oldAssignee = {
+            username: oldAssigneeUsername,
+            avtar: oldAssigneeAvtar
+        }
+
+        task.assignee = userInfo
         await task.save()
 
         // logging this change to Task History
@@ -314,7 +363,7 @@ exports.changeAssignee = async(req,res) =>{
             type:"AssigneeLog",
             assignee:{
                 oldAssignee,
-                newAssignee
+                newAssignee:userInfo
             },
             time:Date.now(),
             task:taskId
@@ -447,7 +496,7 @@ exports.changeStatus = async(req,res) =>{
                 success:false,message:`Cannot Change Task Status directly to ${status}`
             })
         }
-        
+
         task.status = status
         await task.save()
 
@@ -478,7 +527,7 @@ exports.changeStatus = async(req,res) =>{
         return res.status(200).json({success:true,message:"Changed task Status Successfully!"})
 
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.status(200).json({success:false,message:"Internal Server Error"})
     }
 }
@@ -486,28 +535,34 @@ exports.changeStatus = async(req,res) =>{
 exports.addLogTime = async(req,res) =>{
     try {
         const {taskId, time} = req.body
-        const task = await Task.findById({_id:taskId})
-        if(!task) {
-            return res.status(404).json({success:false,message:"No Task Found With this ID"})
-        }
+    
         
-        time = time.trim();
+        const timeSpent = time.trim();
         const logTime = {
             user: req.user.username,
-            timeSpent:time,
+            timeSpent,
             createdAt:Date.now()
         }
 
-        task.logTime.push(logTime)
-        await task.save()
+        // task.logTime.push(logTime)
+        // await task.save()
+
+        const task = await Task.findOneAndUpdate(
+            {_id:taskId},
+            {$addToSet:{logTime}},
+            {new:true, populate: [
+                {path:"linkedTask", select:" logTime"},
+                
+            ]}
+        )
 
         return res.status(200).json({
             success:true,
             message:"Log time Added successfully",
-            logTime: task.logTime[task.logTime.length - 1]
+            AddedLogTime: task.logTime[task.logTime.length - 1]
         })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
