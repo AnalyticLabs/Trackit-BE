@@ -33,8 +33,12 @@ exports.createEpic = async(req,res) =>{
         // getting assignee info from monnit db
         const token = req.user.accessToken;
         const id = assignee
-        const userInfo = await getUserInfo(token,id)
+        const apiResponse = await getUserInfo(token,id)
 
+        const userInfo = {
+            username:apiResponse.username,
+            avtar:apiResponse.avtar
+        }
         const epic = await Epic.create({
             title,
             description,
@@ -89,7 +93,12 @@ exports.createStory = async(req,res) =>{
         // getting assignee info from monnit db
         const token = req.user.accessToken;
         const id = assignee
-        const userInfo = await getUserInfo(token,id)
+        const apiResponse = await getUserInfo(token,id)
+
+        const userInfo = {
+            username:apiResponse.username,
+            avtar:apiResponse.avtar
+        }
 
         const story = await Story.create({
             title,
@@ -335,7 +344,12 @@ exports.changeAssignee = async(req,res) =>{
 
         const token = req.user.accessToken;
         const id = newAssignee
-        const userInfo = await getUserInfo(token,id)
+        const apiResponse = await getUserInfo(token,id)
+
+        const userInfo = {
+            username:apiResponse.username,
+            avtar:apiResponse.avtar
+        }
      
         const task = await Task.findById({_id:taskId}).select("assignee")
         if(!task) {
@@ -351,7 +365,7 @@ exports.changeAssignee = async(req,res) =>{
             avtar: oldAssigneeAvtar
         }
 
-        task.assignee = userInfo
+        task.assignee = apiResponse 
         await task.save()
 
         // logging this change to Task History
