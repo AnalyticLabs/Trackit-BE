@@ -10,7 +10,7 @@ const { getStatus } = require("../controllers/status");
 const { myInfo, logout, searchUsers } = require("../controllers/auth");
 const { getSprint, searchSprint } = require("../controllers/sprint");
 const { getEpic, getStory, searchTask, getTask, addLogTime } = require("../controllers/task");
-const { addComment, getComments, editComment, deleteComment, getHistory } = require("../controllers/comment");
+const { addComment, getComments, editComment, deleteComment, getHistory, getAllHistory } = require("../controllers/comment");
 const { getBacklog, searchBacklog } = require("../controllers/backlog");
 
 /**
@@ -54,6 +54,7 @@ router.route('/get-history').get(verifyToken,getHistory)
 router.route('/get-backlogs').get(verifyToken,getBacklog)
 router.route('/search-backlog').get(verifyToken,searchBacklog)
 router.route('/search-sprints').get(verifyToken,searchSprint)
+router.route('/get-all-history').get(verifyToken,getAllHistory)
 
 
 // Get project for monnit
