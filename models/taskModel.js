@@ -17,8 +17,20 @@ const taskSchema = new mongoose.Schema({
     },
 
     assignee:{
-        type: String,
-        required: [true, "Please provide the assigniee"],
+        username:{
+            type: String,
+            required: [true, "Please Provide username"]
+        },
+        
+        avtar:{
+            type: String,
+        },
+
+        email:{
+            type: String,
+            required: [true, "Please Provide email"]
+        }
+        
     },
 
     type:{
@@ -67,7 +79,7 @@ const taskSchema = new mongoose.Schema({
     },
 
     logTime:[{
-        _id:false,
+        // _id:false,
        user: {
             type:String,
             required: [true, "Please provide the username"]

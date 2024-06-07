@@ -9,9 +9,11 @@ exports.getBacklog = async(req,res) =>{
        
         const backlogs = await Backlog.find({projectId})
         .populate({
-            path:"task", select:" status expectedTime title description assignee type tags priority logTime linkedTask storyId",
+            path:"task", select:" status expectedTime title description assignee sprintId type tags priority logTime linkedTask storyId",
             populate:[
                 {path:"linkedTask", select:"title status tags"},
+
+                {path:"sprintId", select:"name title description"},
             
                 {
                     path:"storyId", select:"title tags description epicId assignee",
@@ -25,16 +27,50 @@ exports.getBacklog = async(req,res) =>{
             ]
         })
             .select("_id task")
-        const count = await Backlog.find({projectId}).countDocuments()
-            
+
+        // console.log(backlogs)
+        
+      
+        let count = {};
+        let  result = {"data" : []};
+        
+        for(const element of backlogs){
+            const {task} = element
+            const sprintName = task.sprintId.name
+            if(!count[sprintName]){
+                count[sprintName] = 0
+            }
+
+            count[sprintName]++ // updating count of each task in a sprint
+        } 
+
+        const groupedBacklogs = backlogs.reduce((acc,backlog) =>{
+            const {task} = backlog
+            const sprintName = task.sprintId.name
+
+            if(!acc[sprintName]) {
+                acc[sprintName] = {
+                    _id: task._id,
+                    name: sprintName,
+                    task:[]
+                }
+            }
+
+            acc[sprintName].task.push(task)
+            return acc
+        },{})
+
+        result.data.push(groupedBacklogs)
+
+        const {data} = result
+
         return res.status(200).json({
             success:true,
             TotalCount:count,
-            backlogs
+            data
         })
     } catch (error) {
-        console.log(error)
-
+        // console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }

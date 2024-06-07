@@ -100,3 +100,56 @@ exports.getHistory = async(req,res) =>{
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
+
+exports.getAllHistory =  async(req,res) =>{
+    try {
+        
+        const {taskId,flag} = req.query
+        if(!taskId || !flag) {
+            return res.status(400).json({success:false,message:"Please Provide taskID & flag"})
+        }
+
+        let comments
+        let history
+        let toSend
+        if(flag === "comments") {
+            
+            comments = await Comment.find({task:taskId})
+                .select('user comment time ')
+                .sort({time:1})
+
+            toSend = comments
+
+        } else if (flag === "history") {
+
+            history = await History.find({task:taskId})
+            .select('user assignee status type time ')
+            .sort({time:1})
+
+            toSend = history
+        }
+
+        else {
+            comments = await Comment.find({task:taskId})
+            .select('user comment time ')
+            .sort({time:1})
+
+            history = await History.find({task:taskId})
+            .select('user assignee status type time ')
+            .sort({time:1})
+
+            const combinedResult = [...comments,...history]
+
+            combinedResult.sort((a,b)=> (a.time - b.time))
+
+            toSend = combinedResult
+            
+        }
+
+        return res.status(200).json({toSend})
+
+    } catch (error) {
+        // console.log(error)
+        return res.status(500).json({message:"Internal Server Error"})
+    }
+}
