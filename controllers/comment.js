@@ -10,7 +10,7 @@ exports.addComment = async(req,res) =>{
         if(!taskId || !comment) {
             return res.status(400).json({success:false,message:"Please Provide TaskId & comment "})
         }
-        const newComment = await Comment.create({
+        const newAddedComment = await Comment.create({
             user:{
                 username:req.user.username,
                 avtar:req.user.avtar
@@ -20,7 +20,14 @@ exports.addComment = async(req,res) =>{
             task:taskId
         })
 
-        return res.status(200).json({success:true,message:"Comment Added successfully"})
+        const newComment = {
+            _id:newAddedComment._id,
+            user:newAddedComment.user,
+            comment:newAddedComment.comment,
+            time:newAddedComment.time
+        }
+
+        return res.status(200).json({success:true,newComment})
     } catch (error) {
         // console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
@@ -53,15 +60,23 @@ exports.editComment = async(req,res) =>{
             return res.status(400).json({success:false,message:"Please Provide CommentId & comment "})
         }
 
-        const oldComment = await Comment.findById({_id:commentId})
+        const oldComment = await Comment.findOneAndUpdate(
+            {_id:commentId},
+            comment,
+            {new:true}
+        )
+
         if(!oldComment) {
             return res.status(404).json({success:false,message:"No Comment Found With This ID"})
         }
 
-        oldComment.comment = comment
-        await oldComment.save();
+        const newComment = {
+            _id:commentId,
+            user:oldComment.user,
+            time:oldComment.time
+        }
 
-        return res.status(200).json({success:true,message:"Comment Updated Successfully!"})
+        return res.status(200).json({success:true,newComment})
     } catch (error) {
         // console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
@@ -104,47 +119,32 @@ exports.getHistory = async(req,res) =>{
 exports.getAllHistory =  async(req,res) =>{
     try {
         
-        const {taskId,flag} = req.query
-        if(!taskId || !flag) {
+        const {taskId} = req.query
+        if(!taskId ) {
             return res.status(400).json({success:false,message:"Please Provide taskID & flag"})
         }
 
         let comments
         let history
         let toSend
-        if(flag === "comments") {
+        // console.log(flag)
+        
             
-            comments = await Comment.find({task:taskId})
-                .select('user comment time ')
-                .sort({time:1})
-
-            toSend = comments
-
-        } else if (flag === "history") {
-
-            history = await History.find({task:taskId})
-            .select('user assignee status type time ')
-            .sort({time:1})
-
-            toSend = history
-        }
-
-        else {
-            comments = await Comment.find({task:taskId})
+        comments = await Comment.find({task:taskId})
             .select('user comment time ')
             .sort({time:1})
 
-            history = await History.find({task:taskId})
+
+        history = await History.find({task:taskId})
             .select('user assignee status type time ')
             .sort({time:1})
+        
+        const combinedResult = [...comments,...history]
 
-            const combinedResult = [...comments,...history]
+        combinedResult.sort((a,b)=> (a.time - b.time))
 
-            combinedResult.sort((a,b)=> (a.time - b.time))
-
-            toSend = combinedResult
+        toSend = combinedResult
             
-        }
 
         return res.status(200).json({toSend})
 
