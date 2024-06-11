@@ -17,7 +17,6 @@ const historySchema = new mongoose.Schema({
         oldAssignee:{
             username:{
                 type: String,
-                required: [true, "Please Provide username"]
             },
             
             avtar:{
@@ -29,7 +28,6 @@ const historySchema = new mongoose.Schema({
         newAssignee:{
             username:{
                 type: String,
-                required: [true, "Please Provide username"]
             },
             
             avtar:{

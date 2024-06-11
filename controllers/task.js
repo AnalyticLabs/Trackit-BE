@@ -9,6 +9,7 @@ const IssueType = require('../models/issueTypeModel')
 const UsedData = require('../models/usedDataModel')
 const History = require('../models/taskHistoryModel')
 const Backlog = require("../models/backlogModel")
+const Comment = require("../models/commentsModel")
 const { sendEmail } = require('../utils/email')
 const { getUserInfo } = require('../utils/userInfo')
 
@@ -348,7 +349,8 @@ exports.changeAssignee = async(req,res) =>{
 
         const userInfo = {
             username:apiResponse.username,
-            avtar:apiResponse.avtar
+            avtar:apiResponse.avtar,
+            email:apiResponse.email
         }
      
         const task = await Task.findById({_id:taskId}).select("assignee")
@@ -365,6 +367,11 @@ exports.changeAssignee = async(req,res) =>{
             avtar: oldAssigneeAvtar
         }
 
+        const newAssigneeInfo = {
+            username:userInfo.username,
+            avtar:userInfo.avtar
+        }
+
         task.assignee = apiResponse 
         await task.save()
 
@@ -377,7 +384,7 @@ exports.changeAssignee = async(req,res) =>{
             type:"AssigneeLog",
             assignee:{
                 oldAssignee,
-                newAssignee:userInfo
+                newAssignee:newAssigneeInfo
             },
             time:Date.now(),
             task:taskId
@@ -385,7 +392,7 @@ exports.changeAssignee = async(req,res) =>{
 
         return res.status(200).json({success:true,message:"Assigne changed Successfully"})
     } catch (error) {
-        // console.log(error)
+        console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
@@ -441,8 +448,21 @@ exports.getTask = async(req,res) =>{
                 }
             ])
 
+        
+        const taskComments = {}
+
+        for (let task of tasks) {
+            const commentCount = await Comment.countDocuments({ task: task._id });
+            taskComments[task._id] = {
+                ...task.toObject(),
+                totalComments: commentCount
+            }
+        }
+
+        // console.log(taskComments)
+        
         const groupedTasks = {};
-        tasks.forEach(task => {
+        Object.values(taskComments).forEach(task => {
             if (!groupedTasks[task.status]) {
                 groupedTasks[task.status] = [];
             }
@@ -495,15 +515,19 @@ exports.changeStatus = async(req,res) =>{
             })
         }
 
+        // console.log(task)
         const allowedStatus = await Status.findOne({name:task.status})
+
+        // To check if status from req body is valid. ( )
         const validStatus = await Status.findOne({name:status,projectId:task.projectId})
         if(!validStatus) {
             return res.status(404).json({
                 success:false,message:"No status found with this name"
             })
         }
+
+
         const oldStatus = task.status
-        // console.log(allowedStatus)
         // Throw error if user change status which doesnt follow status life cycle from setting page
         if( !allowedStatus.before.includes(status) && !allowedStatus.after.includes(status) ) {
             return res.status(422).json({
@@ -511,9 +535,14 @@ exports.changeStatus = async(req,res) =>{
             })
         }
 
-        task.status = status
-        await task.save()
+        // task.status = status
+        // await task.save()
 
+        const updatedTask = await Task.findOneAndUpdate(
+            { _id: taskId }, // Filter
+            { $set: { status: status } }, // Update
+            { new: true } // Options: Return the updated document
+        );
         // Removing this task if it exists in backlog
         if(status === "Completed") {
 
@@ -542,7 +571,7 @@ exports.changeStatus = async(req,res) =>{
 
     } catch (error) {
         // console.log(error)
-        return res.status(200).json({success:false,message:"Internal Server Error"})
+        return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
 
