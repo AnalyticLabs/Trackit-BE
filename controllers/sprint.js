@@ -1,4 +1,5 @@
 const Sprint = require('../models/sprintModels')
+const Comment = require("../models/commentsModel")
 
 
        // Function to convert given date string to unix timestamp
@@ -125,7 +126,7 @@ exports.editSprint = async(req,res) =>{
 
         return res.status(200).json({success:true,message:"Sprint edited successfully",sprint})
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
@@ -166,7 +167,7 @@ exports.getSprint = async(req,res) =>{
         const {projectId} = req.query
 
         const currentDay = new Date()
-        const sprint = await Sprint.find({projectId,endDate:{$gt:currentDay}})
+        const sprints = await Sprint.find({projectId,endDate:{$gt:currentDay}})
             .populate({
                 path:"tasks", select:" status expectedTime title description assignee type tags priority logTime linkedTask storyId",
                 populate:[
@@ -184,26 +185,40 @@ exports.getSprint = async(req,res) =>{
                 ]
             }).select('name startDate endDate isComplete tasks')
 
+
+        const sprintWithComments = {}
         let count = {};
+
+        // getting comments count  for each task
+        for(let sprint of sprints) {
+            const commentsCount = await Promise.all(sprint.tasks.map( async (task) => {
+                const count = await Comment.countDocuments({task:task._id})
+
+
+                return {...task.toObject(),totalComments:count}
+            })) 
+
+            // Inserting count of comments in task after converting it into plain json
+            sprintWithComments[sprint.name] = {
+                ...sprint.toObject(),
+                tasks: commentsCount
+            }
+        }
         
-        for(const element of sprint){
-            const {tasks} = element
-            count[element.name] = tasks.length
+        // Getting count of tasks in each sprint
+        for(const element in sprintWithComments){
+            const {tasks} = sprintWithComments[element]
+            count[element] = tasks.length
         } 
 
-        // const count = await Sprint.find({projectId}).countDocuments() 
-
-            if(!sprint ) {
-                return res.status(404).json({success:false,message:"No sprints found for this project"})
-            } 
             
         return res.status(200).json({
             success:true,
             TotalCount:count,
-            sprint
+            sprint:Object.values(sprintWithComments)
         })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
 
         return res.status(500).json({success:false,message:"Internal Server Error"})
     }
@@ -224,7 +239,7 @@ exports.searchSprint = async(req,res) =>{
 
 
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({sucess:false,message:"Internal Server Error"})
     }
 }
